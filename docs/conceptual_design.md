@@ -40,7 +40,6 @@
 - Depends on: User
 - Owns: Documents, Questions, Answers
 
----
 
 ### Document (PDF)
 

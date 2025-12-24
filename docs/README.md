@@ -1,34 +1,58 @@
 # Architecture & Pre-Coding Design
 
-This folder documents the **thinking process** before the coding process.
+> “Give me six hours to chop down a tree and I will spend the first four sharpening the axe.”
+> ~ Abraham Lincoln
 
-Instead of jumping straight into implementation, we paused to define exactly how the system works. This blueprint covers the "what" and the "how" from request lifecycles to data ownership ensuring the backend architecture is solid before writing a single line of code.
+This folder documents the **architecture thinking and design decisions** behind the project.
+
+Instead of jumping straight into implementation, time was spent defining how the system works at a structural level. The documents here explain the _what_, the _why_, and the _how_ — from request lifecycles to data ownership and data storage — so implementation decisions are grounded in a clear and shared understanding.
+
+---
 
 ## Why this exists
 
-Most projects skip this step, but clarity here prevents messy refactors later. Before opening the IDE, we answered the hard questions:
+Most projects rush into coding and pay the price later with unclear responsibilities and painful refactors.
 
-- How exactly does a PDF go from upload to vector embeddings?
-- Who owns a "Chat" vs. a "Document"?
-- Which APIs are public and which remain internal?
+This folder exists to capture the reasoning behind key decisions, such as:
+
+- How a PDF flows from upload to vector embeddings
+- How chats, documents, and questions relate to each other
+- What data is considered source of truth versus derived
+- Which parts of the system are public API concerns and which remain internal
+
+Having this written down makes the system easier to reason about, maintain, and extend.
+
+---
 
 ## Core Design Principles
 
-- **Backend drives complexity:** The frontend simply expresses intent; the backend handles the logic (e.g., chat creation is implicit).
-- **Data-first design:** API endpoints are derived from entity relationships, not the other way around.
-- **Internal by default:** Technical details like text chunks have no public API; they are internal system concerns.
+- **Backend drives complexity**  
+  The frontend only expresses intent; the backend owns validation, lifecycle, and orchestration logic (for example, chat creation can be implicit).
+
+- **Data-first design**  
+  Data ownership and relationships come first. API endpoints and handlers are derived from these constraints.
+
+- **Internal by default**  
+  Low-level implementation details such as chunks and embeddings are internal system concerns and are never exposed through the public API.
+
+- **Derived data is disposable**  
+  Vector data and other derived artifacts can always be rebuilt from the relational source of truth.
+
+---
 
 ## Project Roadmap & Status
 
-We are currently moving from the **Conceptual Design** phase into **Implementation**.
+The project follows a design-first approach before moving into implementation.
 
-| Phase                 | Component                        | Status         |
-| :-------------------- | :------------------------------- | :------------- |
-| **Conceptual Design** | Request Lifecycle (PDF & Q&A)    | ✅ **Done**    |
-| **Conceptual Design** | Entity Relationships & Ownership | ✅ **Done**    |
-| **Conceptual Design** | API Responsibilities & Contracts | ✅ **Done**    |
-| **Schema Design**     | Database Schema (PostgreSQL)     | 📅 **Planned** |
-| **Schema Design**     | Vector DB Structure (Qdrant)     | 📅 **Planned** |
-| **Build**             | Backend Implementation           | 📅 **Planned** |
+| Phase                 | Component                        | Status      |
+| --------------------- | -------------------------------- | ----------- |
+| **Conceptual Design** | Request Lifecycle (PDF & Q&A)    | ✅ **Done** |
+| **Conceptual Design** | Entity Relationships & Ownership | ✅ **Done** |
+| **Conceptual Design** | API Responsibilities & Contracts | ✅ **Done** |
+| **Schema Design**     | Database Schema (PostgreSQL)     | ✅ **Done** |
+| **Schema Design**     | Vector DB Structure (Qdrant)     | ✅ **Done** |
+| **Build**             | Backend Implementation           | ⏳ **Next** |
 
-> Check the **[architecture notes](./architecture-notes.md)** in this folder for the detailed breakdown of the completed Conceptual Design phase.
+> For a detailed breakdown of the architecture decisions and design steps:
+- **[conceptual_design.md](./conceptual_design.md)**.
+- **[schema_design.md](./schema_design.md)**.
