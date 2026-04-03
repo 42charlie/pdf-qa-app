@@ -1,71 +1,89 @@
-# PDF Q&A Web App (Portfolio Project)
+# 🧠 Mini RAG Pipeline — PDF Q&A
 
-## 🚀 Project Kickoff
+## 🚀 Overview
 
-Hi! I'm starting a new portfolio project to strengthen my AI engineering skills and showcase my work for internship opportunities.
+This project is a **minimal Retrieval-Augmented Generation (RAG) system** built to understand how document-based AI systems work internally.
 
-This project is a **PDF Q&A Web App** where users can upload PDFs and ask questions about their content. The system uses a **Retrieval-Augmented Generation (RAG)** pipeline to provide accurate answers from the uploaded documents. My focus is on building a clean, modular AI pipeline and a professional structure that demonstrates real-world engineering skills.
+Instead of building a feature-heavy product, the focus is on a **clean, modular pipeline** from document upload to answer generation.
 
 ---
 
 ## 🎯 Goal
 
-- Build a **polished MVP** that highlights AI engineering and full-stack skills.
-- Showcase my ability to handle **PDF processing, embeddings, semantic search, and AI-powered Q&A**.
-- Present a project that is **understandable, documented, and professional**.
+- Build a clear end-to-end RAG pipeline
+- Focus on understanding core concepts:
+  - text extraction
+  - chunking
+  - embeddings
+  - retrieval
+  - generation
+- Keep the system simple, local, and explainable
 
 ---
 
-## 🛠️ Tech Stack
+## 🏗️ Pipeline
 
-**Backend:** FastAPI  
-**Database:** PostgreSQL (users, PDFs, metadata)  
-**Vector DB:** Qdrant (for embeddings and semantic search)  
-**Frontend:** React + Tailwind (minimal MVP)  
-**Authentication:** Email + Password + JWT  
-**LLM Provider:** Flexible (OpenAI, Anthropic, etc.)
-
-> **Notice:** Since most of the tech I’m using here (FastAPI, PostgreSQL, Qdrant) is **new to me**, this project is as much about learning as it is about building.
+Upload → Validate → Extract → Chunk → Embed → Retrieve → Generate
 
 ---
 
-## 📋 MVP Features
+## ⚙️ Tech Stack
 
-- **User Management:** Sign up, login, JWT-protected endpoints, rate limiting
-- **PDF Upload:** Upload PDFs, extract text, and process content
-- **AI Q&A:** Chunk text, generate embeddings, perform semantic retrieval, and answer questions using LLM
-- **Frontend MVP:** Login/Register, Dashboard, PDF Upload, and Q&A Chat interface
-
-> This is the minimal set of features to demonstrate the core AI engineering skills while keeping the project manageable.
+- Backend: FastAPI
+- Database: SQLite
+- Vector Search: FAISS
+- Frontend: React + Tailwind (minimal)
 
 ---
 
-## 🗂️ Project Structure (Planned)
+## 📂 Structure
 
-- `backend/` → FastAPI backend, authentication, PDF processing, embeddings, Qdrant integration
-- `frontend/` → React + Tailwind UI for MVP screens
-- `docs/` → project documentation, reusable prompts, notes, and roadmap
+backend/
 
----
+- api → endpoints
+- services → logic (parsing, chunking, retrieval)
+- db → SQLite
 
-## 📅 Timeline
+frontend/
 
-I plan to work on this project over the next **60 days** (starting from 10 Dec.), focusing on:
+- minimal UI (upload + Q&A)
 
-1. Backend skeleton + user management
-2. PDF extraction and processing
-3. Embeddings + RAG pipeline
-4. Frontend MVP pages
-5. Integration and testing
-6. Deployment and final polishing
+docs/
+
+- notes & decisions
 
 ---
 
-## 💡 Notes
+## 🔄 Current Progress
 
-This repository is intended to document the project from kickoff to completion.  
-All updates, commits, and progress will be visible here to show a transparent development process.
+- [x] File upload & validation (MIME, extension, magic bytes)
+- [x] Safe storage (UUID)
+- [x] PDF text extraction (PyMuPDF)
+- [ ] Chunking
+- [ ] Embeddings + FAISS
+- [ ] Retrieval + generation
+- [ ] UI visualization
 
 ---
 
-_Feel free to follow along as I build, learn, and refine this project!_
+## 💡 Key Ideas
+
+- Local-first system
+- One document per chat (simplifies retrieval)
+- SQLite = source of truth
+- FAISS = fast vector search
+- Focus on understanding, not complexity
+
+---
+
+## 📌 Why this project
+
+Most tutorials show how to _use_ RAG.
+
+This project focuses on:
+→ understanding how it works internally  
+→ building it step by step
+
+---
+
+Built as part of my journey into AI Engineering.
