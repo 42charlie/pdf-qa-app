@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File
 from fastapi.responses import JSONResponse
 from services.file_validation import validate_document
 from services.storage import save_file
-from services.text_extraction import extract_text_from_pdf
+from services.text_extraction import extract_pages_from_pdf, validate_text, clean_txt
 
 route = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -16,7 +16,9 @@ async def upload(file: UploadFile = File(...)):
 	uuid = save_file(file)
 
 	#extract text from the PDF (placeholder for actual extraction logic)
-	text, pages = extract_text_from_pdf(uuid)
+	pages = extract_pages_from_pdf(uuid)
+	clean_text = clean_txt(pages)
+	validated_text = validate_text(clean_text)
 
 	# TODO: save to database
 

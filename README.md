@@ -59,6 +59,7 @@ docs/
 - [x] File upload & validation (MIME, extension, magic bytes)
 - [x] Safe storage (UUID)
 - [x] PDF text extraction (PyMuPDF)
+- [x] Text cleaning & normalization (ligatures, hyphenation, noise removal)
 - [ ] Chunking
 - [ ] Embeddings + FAISS
 - [ ] Retrieval + generation
