@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from services.file_validation import validate_document
 from services.storage import save_file
 from services.text_extraction import extract_pages_from_pdf, validate_text, clean_txt
+from services.chunker import chunk_text
 
 route = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -22,6 +23,8 @@ async def upload(file: UploadFile = File(...)):
 
 	with open("test.txt", "w") as f:
 		f.write(validated_text)
+
+	chunks = chunk_text(validated_text)
 
 	# TODO: save to database
 
