@@ -9,10 +9,16 @@ def clean_txt(pages: list) -> str:
         text = page["text"]
 
         # Normalize line breaks
-        text = text.replace("\r", "\n")
+        text = text.replace("\r\n", "\n").replace("\r", "\n")
 
         # Fix ligatures
-        text = text.replace("ﬀ", "ff").replace("ﬁ", "fi").replace("ﬂ", "fl")
+        text = (
+            text.replace("ﬀ", "ff")
+                .replace("ﬁ", "fi")
+                .replace("ﬂ", "fl")
+                .replace("ﬃ", "ffi")
+                .replace("ﬄ", "ffl")
+        )
 
         # Fix hyphenated line breaks (word-\nword → wordword)
         lines = text.split("\n")
@@ -21,32 +27,54 @@ def clean_txt(pages: list) -> str:
 
         while i < len(lines):
             line = lines[i].strip()
-
-            # Remove standalone noise lines (like "1", "2", etc.)
-            if line.isdigit():
+			
+            # Preserve blank lines: they may indicate paragraph boundaries
+            if line == "":
+                fixed_lines.append("")
                 i += 1
                 continue
 
-            # Handle hyphenation
+            # Remove standalone noise lines (like "1", "2", etc.)
+            if line.isdigit():
+                prev_is_blank = (len(fixed_lines) == 0 or fixed_lines[-1] == "")
+                next_is_blank = (i + 1 >= len(lines) or lines[i + 1].strip() == "" or lines[i + 1].strip().isdigit())
+                if prev_is_blank or next_is_blank:
+                    i += 1
+                    continue
+
+            # Fix hyphenated word at line break: "exam-\nple" -> "example"
             if line.endswith("-") and i + 1 < len(lines):
                 next_line = lines[i + 1].strip()
-                line = line[:-1] + next_line
-                i += 1  # skip next line
+                if next_line:
+                    line = line[:-1] + next_line
+                    i += 1  # consume next line
 
             fixed_lines.append(line)
             i += 1
 
-        text = "\n".join(fixed_lines)
+        # Remove repeated blank lines, but keep single blank lines
+        normalized_lines = []
+        previous_blank = False
 
-        cleaned_pages.append(text.strip())
+        for line in fixed_lines:
+            is_blank = (line == "")
+            if is_blank:
+                if not previous_blank:
+                    normalized_lines.append("")
+                previous_blank = True
+            else:
+                normalized_lines.append(line)
+                previous_blank = False
 
-    # Combine pages
-    full_text = "\n".join(cleaned_pages)
+        page_text = "\n".join(normalized_lines).strip()
 
-    # Final cleanup
-    full_text = "\n".join(line.strip() for line in full_text.splitlines() if line.strip())
+        if page_text:
+            cleaned_pages.append(page_text)
 
-    return full_text
+    # Preserve page separation with double newline
+    full_text = "\n\n".join(cleaned_pages)
+
+    return full_text.strip()
 
 def validate_text(clean_text: str) -> str:
 	if not clean_text or len(clean_text.strip()) < 100:  # Arbitrary threshold for minimum text length

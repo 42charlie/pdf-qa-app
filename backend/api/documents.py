@@ -20,6 +20,9 @@ async def upload(file: UploadFile = File(...)):
 	clean_text = clean_txt(pages)
 	validated_text = validate_text(clean_text)
 
+	with open("test.txt", "w") as f:
+		f.write(validated_text)
+
 	# TODO: save to database
 
 	return JSONResponse(content={"success": True, "uuid": uuid, "message": "File uploaded successfully."})  # Return a preview of the extracted text
