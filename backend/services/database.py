@@ -1,6 +1,5 @@
 import sqlite3
 
-from fastapi import HTTPException
 from config import DB_PATH
 
 INIT_QUERY = '''CREATE TABLE IF NOT EXISTS documents (
