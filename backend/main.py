@@ -1,9 +1,16 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from api import chat
-from api import documents
+from api import chat, documents
+from services.database import initialize_database
 
 app = FastAPI()
+
+#initialize database (create tables if they don't exist)
+try:
+	initialize_database()
+except Exception as e:
+	print(f"Error initializing database: {e}")
+	raise
 
 # Include the routers for documents and chat endpoints
 app.include_router(documents.route)
