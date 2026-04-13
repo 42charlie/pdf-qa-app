@@ -15,7 +15,6 @@ CREATE TABLE IF NOT EXISTS chunks (
     id INTEGER PRIMARY KEY,
     document_id TEXT NOT NULL,
     chunk_index INTEGER NULL,
-	faiss_id INTEGER NULL,
     text TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
@@ -61,3 +60,14 @@ def insert_chunks(chunks, document_id):
 	except sqlite3.Error as e:
 		print(f"Error inserting chunks: {e}")
 		raise 
+
+def get_chunks_ids(document_id):
+	try:
+		with sqlite3.connect(DB_PATH) as conn:
+			cursor = conn.cursor()
+			cursor.execute('SELECT id FROM chunks WHERE document_id = ?', (document_id,))
+			#[(123,), (456,)] -> [123, 456]
+			return [id[0] for id in cursor.fetchall()]
+	except sqlite3.Error as e:
+		print(f"Error initializing database: {e}")
+		raise

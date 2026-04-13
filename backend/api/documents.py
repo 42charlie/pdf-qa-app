@@ -1,11 +1,15 @@
 from fastapi import APIRouter, UploadFile, File
 from fastapi.responses import JSONResponse
+
+# Import service functions
 from services.file_validation import validate_document
 from services.storage import save_file
 from services.text_extraction import extract_pages_from_pdf, validate_text, clean_txt
 from services.chunker import chunk_text
+from services.embedding import generate_embeddings, save_embeddings
+
 #database imports
-from services.database import insert_document, insert_chunks
+from services.database import get_chunks_ids, insert_document, insert_chunks
 
 route = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -29,9 +33,14 @@ async def upload(file: UploadFile = File(...)):
 	try:
 		insert_document(uuid, file.filename, uuid, validated_text)
 		insert_chunks(chunks, uuid)
+		chunk_ids = get_chunks_ids(uuid)
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "message": "Database error"}, status_code=500)
+
+	#embed chunks and store embeddings in the vector database
+	embeddings = generate_embeddings(chunks)
+	save_embeddings(embeddings, chunk_ids, uuid)
 
 	return JSONResponse(content={"success": True, "uuid": uuid, "message": "File uploaded successfully."})  # Return a preview of the extracted text
 
