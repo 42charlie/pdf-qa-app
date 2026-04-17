@@ -1,6 +1,6 @@
 import faiss
 import numpy as np
-from services.model_loader import get_model
+from services.resource_manager import get_model
 from config import FAISS_DIR
 
 def save_embeddings(embeddings, chunks_ids, uuid):
@@ -24,7 +24,7 @@ def embed_question(question):
 	embedding = model.encode([question])
 	return embedding
 
-def get_relevant_chunks(question_embedding, uuid, top_k=5):
+def get_relevant_chunks_ids(question_embedding, uuid, top_k=3):
 	index = faiss.read_index(str(FAISS_DIR / f"{uuid}.faiss"))
 	distances, indices = index.search(question_embedding, top_k)
 	return indices[0].tolist()  # Return the list of relevant chunk IDs

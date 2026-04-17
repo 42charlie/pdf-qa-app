@@ -60,9 +60,9 @@ docs/
 - [x] Safe storage (UUID)
 - [x] PDF text extraction (PyMuPDF)
 - [x] Text cleaning & normalization (ligatures, hyphenation, noise removal)
-- [ ] Chunking
-- [ ] Embeddings + FAISS
-- [ ] Retrieval + generation
+- [x] Chunking
+- [x] Embeddings + FAISS
+- [x] Retrieval + generation
 - [ ] UI visualization
 
 ---
