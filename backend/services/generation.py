@@ -1,5 +1,4 @@
 import json
-from urllib import response
 from groq import APIStatusError, APIConnectionError, APIError # Groq is free, I will use it during development
 from config import SYSTEM_INSTRUCTION, FALLBACK_RESPONSE
 
@@ -79,17 +78,24 @@ def request_llm_response(client, prompt):
 			])
 		content = extract_content(response)
 		if not content:
-			return {"ok": False, "error": "LLM returned an empty response.", "content": None}
-		return {"ok": True, "error": None, "content": content}
+			return {"ok": False, "error": "LLM returned an empty response.", "data": None}
+		return {"ok": True, "error": None, "data": content}
 	except APIConnectionError: # Network issues, timeouts, etc.
-		return {"ok": False, "error": "LLM service unreachable. Try again.", "content": None}
+		return {"ok": False, "error": "LLM service unreachable. Try again.", "data": None}
 
 	except APIStatusError as e:
 		status = e.status_code
 		error = resolve_status(status)
-		return {"ok": False, "error": error, "content": None}
+		return {"ok": False, "error": error, "data": None}
 	except APIError:
-		return {"ok": False, "error": "LLM request failed.", "content": None}
+		return {"ok": False, "error": "LLM request failed.", "data": None}
 
 	except Exception:
-		return {"ok": False, "error": "Unexpected generation error.", "content": None}
+		return {"ok": False, "error": "Unexpected generation error.", "data": None}
+
+def relevant_chunks_to_json(chunks_ids, distances):
+	result = {
+		"count": len(chunks_ids),
+		"chunks": [{ "id" : chunk_id, "distance": distance} for chunk_id, distance in zip(chunks_ids, distances)]
+	}
+	return result

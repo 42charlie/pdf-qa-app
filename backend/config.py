@@ -17,7 +17,7 @@ FAISS_DIR.mkdir(exist_ok=True)
 # Model configuration
 FALLBACK_RESPONSE = """{
     "answer": "I do not have enough information from the document.",
-    "sources": [],
+    "used_chunk_ids": [],
     "grounded": false
 }"""
 
@@ -43,12 +43,12 @@ Rules (priority order):
 Output schema:
 {{
   "answer": string,
-  "sources": number[],
+  "used_chunk_ids": number[],
   "grounded": boolean
 }}
 
 Output rules:
 - "answer" must be based only on the context
-- "sources" must contain supporting chunk IDs
+- "used_chunk_ids" must contain supporting chunk IDs
 - "grounded" is true only if fully supported
 """
