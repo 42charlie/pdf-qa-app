@@ -31,7 +31,7 @@ async def upload(file: UploadFile = File(...)):
 
 	#store document metadata and chunks in the database
 	try:
-		insert_document(uuid, file.filename, validated_text, len(chunks))
+		insert_document(uuid, file.filename, validated_text, len(chunks), pages[-1]['page'])
 		insert_chunks(chunks, uuid)
 		chunk_ids = get_chunks_ids(uuid)
 	except Exception as e:

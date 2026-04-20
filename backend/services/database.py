@@ -8,6 +8,7 @@ INIT_QUERY = '''CREATE TABLE IF NOT EXISTS documents (
     full_text TEXT NOT NULL,
     text_length INTEGER NOT NULL,
     chunks_count INTEGER NOT NULL,
+	pages_count INTEGER NOT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	last_activity_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -36,14 +37,14 @@ def initialize_database():
 	except sqlite3.Error:
 		raise
 
-def insert_document(document_id, original_filename, full_text, chunks_count):
+def insert_document(document_id, original_filename, full_text, chunks_count, pages_count):
 	try:
 		with sqlite3.connect(DB_PATH) as conn:
 			cursor = conn.cursor()
 			cursor.execute('''
-				INSERT INTO documents (id, original_filename, full_text, text_length, chunks_count)
-				VALUES (?, ?, ?, ?, ?)
-			''', (document_id, original_filename, full_text, len(full_text), chunks_count))
+				INSERT INTO documents (id, original_filename, full_text, text_length, chunks_count, pages_count)
+				VALUES (?, ?, ?, ?, ?, ?)
+			''', (document_id, original_filename, full_text, len(full_text), chunks_count, pages_count))
 			conn.commit()
 			return cursor.lastrowid
 	except sqlite3.Error:
