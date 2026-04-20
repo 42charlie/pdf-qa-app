@@ -8,7 +8,8 @@ INIT_QUERY = '''CREATE TABLE IF NOT EXISTS documents (
     full_text TEXT NOT NULL,
     text_length INTEGER NOT NULL,
     chunks_count INTEGER NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	last_activity_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS chunks (
@@ -105,7 +106,6 @@ def document_exists(document_id):
 			cursor.execute('SELECT 1 FROM documents WHERE id = ?', (document_id,))
 			return cursor.fetchone() is not None
 	except sqlite3.Error as e:
-		print(f"Error checking document existence: {e}")
 		raise
 
 def get_document_chunks_by_uuid(document_id):
@@ -115,4 +115,25 @@ def get_document_chunks_by_uuid(document_id):
 			cursor.execute('SELECT id, chunk_index, text FROM chunks WHERE document_id = ? ORDER BY chunk_index', (document_id,))
 			return [row for row in cursor.fetchall()]
 	except sqlite3.Error:
+		raise
+
+def update_document_activity(document_id):
+	try:
+		with sqlite3.connect(DB_PATH) as conn:
+			cursor = conn.cursor()
+			cursor.execute('UPDATE documents SET last_activity_at = CURRENT_TIMESTAMP WHERE id = ?', (document_id,))
+			conn.commit()
+	except sqlite3.Error as e:
+		raise
+
+def delete_inactive_documents(inactivity_threshold_hours=24):
+	try:
+		with sqlite3.connect(DB_PATH) as conn:
+			cursor = conn.cursor()
+			cursor.execute('''
+				DELETE FROM documents
+				WHERE last_activity_at < datetime('now', ?)
+			''', (f'-{inactivity_threshold_hours} hours',))
+			conn.commit()
+	except sqlite3.Error as e:
 		raise

@@ -33,6 +33,7 @@ async def ask():
 async def ask_question(request: ChatRequest = Form(...)):
 	question = embed_question(request.question)
 	try:
+		update_document_activity(uuid)
 		chunks_ids, distances = get_relevant_chunks(question, request.uuid)
 		if min(distances) > 1.3:  # Threshold for relevance, based on empirical testing
 			return JSONResponse(content={"ok": True, "error": None, "data": json.loads(FALLBACK_RESPONSE), "relevant_chunks": None}, status_code=200)

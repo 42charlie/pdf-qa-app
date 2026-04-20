@@ -46,8 +46,9 @@ async def upload(file: UploadFile = File(...)):
 
 @route.get("/{uuid}")
 async def get_document(uuid: str):
-	# Placeholder for fetching document metadata and chunks from the database
+	''' Placeholder for fetching document metadata and chunks from the database '''
 	try:
+		update_document_activity(uuid)
 		document = get_document_by_uuid(uuid)  # Implement this function to fetch document metadata
 	except Exception as e:
 		print(f"Database error: {e}")
@@ -60,10 +61,11 @@ async def get_document(uuid: str):
 
 @route.get("/{uuid}/chunks")
 async def get_document_chunks(uuid: str):
-	# Placeholder for fetching document chunks from the database
-	if not document_exists(uuid):
-		return JSONResponse(content={"success": False, "message": "Document not found"}, status_code=404)
+	''' Placeholder for fetching document chunks from the database '''
 	try:
+		if not document_exists(uuid):
+			return JSONResponse(content={"success": False, "message": "Document not found"}, status_code=404)
+		update_document_activity(uuid)
 		chunks = get_document_chunks_by_uuid(uuid)  # Implement this function to fetch chunks based on document UUID
 	except Exception as e:
 		print(f"Database error: {e}")
