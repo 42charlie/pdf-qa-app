@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS chunks (
     chunk_index INTEGER NULL,
     text TEXT NOT NULL,
 	chunk_length INTEGER NOT NULL,
+	start_char INTEGER NULL,
+	end_char INTEGER NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
 );
@@ -48,13 +50,13 @@ def insert_document(document_id, original_filename, full_text, chunks_count):
 		raise
 
 def insert_chunks(chunks, document_id):
-	formatted_chunks = [(document_id, chunk_index, text, len(text)) for chunk_index, text in enumerate(chunks)]
+	formatted_chunks = [(document_id, chunk_index, text.get('content', ''), len(text.get('content', '')), text.get('start_char'), text.get('end_char')) for chunk_index, text in enumerate(chunks)]
 	try:
 		with sqlite3.connect(DB_PATH) as conn:
 			cursor = conn.cursor()
 			cursor.executemany('''
-				INSERT INTO chunks (document_id, chunk_index, text, chunk_length)
-				VALUES (?, ?, ?, ?)
+				INSERT INTO chunks (document_id, chunk_index, text, chunk_length, start_char, end_char)
+				VALUES (?, ?, ?, ?, ?, ?)
 			''', formatted_chunks)
 			conn.commit()
 	except sqlite3.Error:

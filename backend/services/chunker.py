@@ -1,7 +1,4 @@
-
-CHUNK_SIZE = 800
-OVERLAP_SIZE = 120
-MIN_CHUNK_SIZE = 100
+from config import CHUNK_SIZE, OVERLAP_SIZE, MIN_CHUNK_SIZE
 
 def split_large_block(block: str, max_size: int) -> list:
     """
@@ -35,40 +32,68 @@ def split_large_block(block: str, max_size: int) -> list:
 
 
 def chunk_text(text: str):
-    # Step 1: split into paragraph-like blocks
     blocks = [b.strip() for b in text.split("\n\n") if b.strip()]
 
     chunks = []
+    cursor = 0  # tracks position in full_text
     current_chunk = ""
+    chunk_start = 0
 
     for block in blocks:
-        # Step 2: handle very large blocks
+        block_start = text.find(block, cursor)  # find exact position
+        if block_start == -1:
+            continue
+
+        cursor = block_start
+
+        # handle large block
         if len(block) > CHUNK_SIZE:
             sub_blocks = split_large_block(block, CHUNK_SIZE)
         else:
             sub_blocks = [block]
 
         for sub_block in sub_blocks:
-            # Try to add to current chunk
+            sub_start = text.find(sub_block, cursor)
+            if sub_start == -1:
+                continue
+
+            sub_end = sub_start + len(sub_block)
+
             if len(current_chunk) + len(sub_block) + 2 <= CHUNK_SIZE:
+                if not current_chunk:
+                    chunk_start = sub_start
+
                 current_chunk += sub_block + "\n\n"
             else:
-                # Save current chunk if valid
                 if current_chunk.strip():
-                    chunks.append(current_chunk.strip())
+                    chunks.append({
+                        "content": current_chunk.strip(),
+                        "start_char": chunk_start,
+                        "end_char": prev_end
+                    })
 
-                # Start new chunk WITH overlap
+                # overlap
                 if chunks:
-                    overlap = chunks[-1][-OVERLAP_SIZE:]
-                    current_chunk = overlap + sub_block + "\n\n"
+                    overlap_text = chunks[-1]["content"][-OVERLAP_SIZE:]
+                    overlap_start = chunks[-1]["end_char"] - len(overlap_text)
+                    current_chunk = overlap_text + sub_block + "\n\n"
+                    chunk_start = overlap_start
                 else:
                     current_chunk = sub_block + "\n\n"
+                    chunk_start = sub_start
 
-    # Add last chunk
+            prev_end = sub_end
+            cursor = sub_end
+
+    # last chunk
     if current_chunk.strip():
-        chunks.append(current_chunk.strip())
+        chunks.append({
+            "content": current_chunk.strip(),
+            "start_char": chunk_start,
+            "end_char": prev_end
+        })
 
-    # Step 3: filter tiny chunks
-    chunks = [c for c in chunks if len(c) >= MIN_CHUNK_SIZE]
+    # filter
+    chunks = [c for c in chunks if len(c["content"]) >= MIN_CHUNK_SIZE]
 
     return chunks

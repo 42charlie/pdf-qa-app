@@ -1,5 +1,10 @@
 from pathlib import Path
 
+#chunler configuration
+CHUNK_SIZE = 800
+OVERLAP_SIZE = 120
+MIN_CHUNK_SIZE = 100
+
 # Base directory of the project
 BASE_DIR = Path(__file__).resolve().parent
 
