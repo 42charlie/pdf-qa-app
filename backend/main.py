@@ -1,16 +1,22 @@
+import asyncio
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from api import chat, documents
 from services.database import initialize_database
+from services.resource_manager import clean_inactive_documents
 
 app = FastAPI()
 
-#initialize database (create tables if they don't exist)
-try:
-	initialize_database()
-except Exception as e:
-	print(f"Error initializing database: {e}")
-	raise
+@app.on_event("startup")
+async def startup_event():
+	''' Initialize resources on startup, such as the database and background tasks '''
+	try:
+		initialize_database()
+	except Exception as e:
+		print(f"Error initializing database: {e}")
+		raise
+
+	asyncio.create_task(clean_inactive_documents())
 
 # Include the routers for documents and chat endpoints
 app.include_router(documents.route)
