@@ -1,14 +1,19 @@
+import Section from "./components/Section";
+import StickyVisualizer from "./components/StickyVisualizer";
+import { steps } from "./data/steps";
 
 function App() {
   return (
-    <div className="flex">
-      <div id='left-panel' className="bg-gray-500 flex-[1.2]">
-        <div className="min-h-screen">EXPLANATION HERE</div>
-        <div className="min-h-screen">EXPLANATION HERE</div>
-        <div className="min-h-screen">EXPLANATION HERE</div>
+    <>
+    <div className="flex gap-8 px-8">
+      <div className="flex-[1.2] min-h-screen">
+        {steps.map(step => (
+          <Section key={step.id} title={step.title} description={step.description} />
+        ))}
       </div>
-      <div id='right-panel' className="sticky top-0 bg-gray-300 flex-1 h-screen">VISUALIZER HERE</div>
+      <StickyVisualizer />
     </div>
+    </>
   );
 }
 
