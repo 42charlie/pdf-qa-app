@@ -2,8 +2,8 @@ import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
 
 function Banner() {
   return (
-	<div className="w-14 bg-slate-50 flex-col py-4 mt-4">
-		<div className="space-y-4 text-xl text-slate-400 flex flex-col items-center">
+	<div className="w-14 bg-slate-50 flex-col py-4 border-r border-slate-200">
+		<div className="space-y-4 text-xl text-slate-400 flex flex-col items-center mt-4">
 			<a href="https://github.com/42charlie/pdf-qa-app" target="_blank" rel="noopener noreferrer" className="p-2 hover:text-slate-900 transition hover:bg-slate-200 rounded-md">
 				<FaGithub className="m-auto"/>
 			</a>
