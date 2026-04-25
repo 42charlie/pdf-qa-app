@@ -20,7 +20,6 @@ function Header() {
 		<div className="flex items-center gap-2">
 			<span className="text-[10px] font-mono text-slate-400">TEXT LENGTH: 45,210 / CHUNKS: 14</span>
 		</div>
-
 	</div>
 	</>
   );
