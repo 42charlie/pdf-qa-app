@@ -2,13 +2,11 @@ import CitationPanel from "./CitationPanel";
 
 function ThinkingIndicator() {
   return (
-    <div className="flex items-center gap-2 text-sm text-gray-300">
       <div className="flex gap-0.5">
         <div className="w-1 h-1 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]" />
         <div className="w-1 h-1 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]" />
         <div className="w-1 h-1 bg-blue-600 rounded-full animate-bounce" />
       </div>
-    </div>
   );
 }
 
