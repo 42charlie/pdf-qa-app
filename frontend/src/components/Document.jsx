@@ -1,5 +1,7 @@
+import Footer from "./Document/Footer";
 import Header from "./Document/Header";
 import TextViewer from "./Document/TextViewer";
+import { useState } from "react";
 
 //mock data - to be replaced with actual data from backend
 const text = `Donec ut rhoncus ex. Fusce ut mattis enim, pellentesque vehicula ante. Sed tincidunt at turpis vulputate finibus. Proin lobortis tincidunt maximus. Cras ac risus eu eros scelerisque placerat vitae eu ligula. Nullam feugiat finibus orci quis lacinia. Sed vehicula in tortor ac semper. Aliquam et arcu dignissim, porttitor sem et, fringilla lectus. Integer sit amet nisl massa. Maecenas rhoncus ac tortor id rhoncus. Pellentesque pellentesque risus ut efficitur convallis. Pellentesque id est finibus, feugiat sem ac, interdum risus. Fusce sapien ante, accumsan at lacus eget, condimentum laoreet mi. Suspendisse lobortis at elit non semper.
@@ -19,24 +21,28 @@ const documentInfo = {
 }
 
 const chunks = [
-	{ id: 0, charsCount: 600, startChar: 0, endChar: 599 },
-	{ id: 1, charsCount: 600, startChar: 600, endChar: 1199 },
-	{ id: 2, charsCount: 600, startChar: 1200, endChar: 1799 },
-	{ id: 3, charsCount: 600, startChar: 1800, endChar: 2399 },
-	{ id: 4, charsCount: 600, startChar: 2400, endChar: 2999 },
-	{ id: 5, charsCount: 600, startChar: 3000, endChar: 3599 },
-	{ id: 6, charsCount: 600, startChar: 3600, endChar: 4199 },
-	{ id: 7, charsCount: 600, startChar: 4200, endChar: 4799 }
+	{ id: 0, length: 500, start: 0, end: 500 },
+	{ id: 1, length: 600, start: 500, end: 1100 },
+	{ id: 2, length: 450, start: 1100, end: 1550 },
+	{ id: 3, length: 700, start: 1550, end: 2250 },
+	{ id: 4, length: 300, start: 2250, end: 2550 },
+	{ id: 5, length: 800, start: 2550, end: 3350 },
+	{ id: 6, length: 400, start: 3350, end: 3750 },
+	{ id: 7, length: 550, start: 3750, end: 4300 },
+	{ id: 8, length: 650, start: 4300, end: 4950 },
+	{ id: 9, length: 350, start: 4950, end: 5300 },
 ]
 //end of mock data
 
 function Document() {
-  return (
-	<div className="w-3/5 bg-white overflow-hidden flex flex-col border-r border-slate-200">
-		<Header documentinfo={documentInfo}/>
-		<TextViewer text={text} chunks={chunks} />
-	</div>
-  );
+	const [chunkInfo, setChunkInfo] = useState(null);
+	return (
+		<div className="w-3/5 bg-white overflow-hidden flex flex-col border-r border-slate-200">
+			<Header documentinfo={documentInfo}/>
+			<TextViewer text={text} chunks={chunks} setChunkInfo={setChunkInfo} />
+			<Footer chunkInfo={chunkInfo}/>
+		</div>
+	);
 }
 
 export default Document;
