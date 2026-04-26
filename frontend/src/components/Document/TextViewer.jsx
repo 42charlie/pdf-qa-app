@@ -20,7 +20,7 @@ function TextViewer({ text, chunks, setChunkInfo }) {
 		setChunkInfo(null);
 	}
 	return (
-		<div className="overflow-y-auto flex-1 overflow-hidden bg-white p-6 text-sm text-slate-600 font-mono whitespace-pre-wrap">
+		<div className="overflow-y-auto flex-1 overflow-hidden bg-white p-6 pt-16 text-sm text-slate-600 font-mono whitespace-pre-wrap">
 			{segments.map((segment) => {
 			// Determine if this specific segment should be highlighted
 			const isHighlighted = activeChunkId !== null && segment.chunks.includes(activeChunkId);

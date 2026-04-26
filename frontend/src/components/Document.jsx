@@ -36,10 +36,11 @@ const chunks = [
 
 function Document() {
 	const [chunkInfo, setChunkInfo] = useState(null);
+	const [activeTab, setActiveTab] = useState("text");
 	return (
 		<div className="w-3/5 bg-white overflow-hidden flex flex-col border-r border-slate-200">
-			<Header documentinfo={documentInfo}/>
-			<TextViewer text={text} chunks={chunks} setChunkInfo={setChunkInfo} />
+			<Header documentinfo={documentInfo} setActiveTab={setActiveTab} activeTab={activeTab} />
+			<TextViewer activeTab={activeTab} text={text} chunks={chunks} setChunkInfo={setChunkInfo} />
 			<Footer chunkInfo={chunkInfo}/>
 		</div>
 	);
