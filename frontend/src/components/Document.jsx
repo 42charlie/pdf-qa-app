@@ -1,6 +1,7 @@
 import Footer from "./Document/Footer";
 import Header from "./Document/Header";
 import TextViewer from "./Document/TextViewer";
+import RetrievedChunks from "./Document/RetrievedChunks";
 import { useState } from "react";
 
 //mock data - to be replaced with actual data from backend
@@ -34,14 +35,17 @@ const chunks = [
 ]
 //end of mock data
 
-function Document() {
+function Document( { retrievedChunks, setActiveTab, activeTab } ) {
 	const [chunkInfo, setChunkInfo] = useState(null);
-	const [activeTab, setActiveTab] = useState("text");
+	// console.log("Document component rendered with retrievedChunks:", retrievedChunks);
 	return (
 		<div className="w-3/5 bg-white overflow-hidden flex flex-col border-r border-slate-200">
 			<Header documentinfo={documentInfo} setActiveTab={setActiveTab} activeTab={activeTab} />
-			<TextViewer activeTab={activeTab} text={text} chunks={chunks} setChunkInfo={setChunkInfo} />
-			<Footer chunkInfo={chunkInfo}/>
+			{ activeTab === 'text' ?
+			<>
+				<TextViewer activeTab={activeTab} text={text} chunks={chunks} setChunkInfo={setChunkInfo} />
+				<Footer chunkInfo={chunkInfo}/>
+			</> : <RetrievedChunks retrievedChunks={retrievedChunks}/> }
 		</div>
 	);
 }

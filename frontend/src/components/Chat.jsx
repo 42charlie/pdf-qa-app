@@ -24,7 +24,7 @@ function Question( {inputValue, setInputValue, isThinking , onSubmit} ) {
 	);
 }
 
-function Chat() {
+function Chat( { setRetrievedChunks, setActiveTab } ) {
 	const [inputValue, setInputValue] = useState("");
 	const [isThinking, setIsThinking] = useState(false);
 	const [messages, setMessages] = useState([]);
@@ -49,9 +49,12 @@ function Chat() {
 				role: 'system',
 				content: 'According to the document, the compliance team has allocated a $2.4M budget to address ongoing regulatory scrutiny...',
 				isgrounded: true,
-				citations: [{ id: 0, preview: "The compliance team has allocated a $2.4M budget to address these concerns by EOY. Furthermore, malicious inputs previously", dist: 0.150 },
-							{ id: 1, preview: "The compliance team has allocated a $2.4M budget to address these concerns by EOY. Furthermore, malicious inputs previously", dist: 0.150 }
+				citations: [{ id: 0, preview: "Donec ut rhoncus ex. Fusce ut mattis enim, pellentesque vehicula ante. Sed tincidunt at turpis vulputate finibus. Proin lobortis tincidunt maximus. Cras ac risus eu eros scelerisque placerat vitae eu ligula. Nullam feugiat finibus orci quis lacinia. Sed vehicula in tortor ac semper. Aliquam et arcu dignissim, porttitor sem et, fringilla lectus. Integer sit amet nisl massa. Maecenas rhoncus ac tortor id rhoncus. Pellentesque pellentesque risus ut efficitur convallis. Pellentesque id est finibus maximus. Cras ac risus eu eros scelerisque placerat vitae eu ligula ut rhoncus ex. Fusce ut mattis enim, pellentesque vehicula ante. Sed tincidunt at turpis vulputate finibus. Proin lobortis tincidunt maximus. tortor ac semper. Aliquam et arcu tortor ac semper et arcu pellen tesque vehicula finibus .", dist: 1.150 },
+							{ id: 1, preview: "feugiat sem ac, interdum risus. Fusce sapien ante, accumsan at lacus eget, condimentum laoreet mi. Suspendisse lobortis at elit non semper. Aliquam erat volutpat. Aliquam id vehicula dui. Donec at arcu ut libero convallis faucibus. Nam sit amet lorem vehicula justo eleifend fringilla. Sed ligula diam, tempus at tortor vel, molestie faucibus lorem. Nam commodo orci vel metus fermentum mollis. Vestibulum varius nisi sit amet turpis porta, in congue purus egestas.", dist: 0.750 },
+							{ id: 2, preview: "Nullam id gravida mauris. Fusce luctus elementum tortor nec sagittis. Nunc fringilla posuere consequat. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Ut tellus nibh, convallis ut augue eget, laoreet semper enim. Quisque id nunc efficitur, dapibus nulla ornare, vestibulum turpis. Curabitur aliquet orci ut ipsum iaculis, a cursus massa pulvinar.", dist: 0.550 },
 			]};
+			setRetrievedChunks(mockLlmResponse.citations)
+			setActiveTab('retrieved');
 			setMessages(prevMessages => [...prevMessages, mockLlmResponse]);
 			setIsThinking(false);
 		}, 2000); // Simulate a 2-second response time
