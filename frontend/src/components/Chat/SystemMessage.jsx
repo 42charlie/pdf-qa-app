@@ -1,4 +1,4 @@
-import CitationPanel from "./CitationPanel";
+import SystemMessageFooter from "./SystemMessageFooter";
 
 function ThinkingIndicator() {
   return (
@@ -12,11 +12,13 @@ function ThinkingIndicator() {
 
 function SystemMessage({ message, isgrounded, citations, isThinking=false}) {
 	return (
-		<div className="self-start max-w-[90%] space-y-3">
-			<div className="bg-white text-sm leading-relaxed text-slate-800 px-4 py-3 rounded-lg rounded-tl-none shadow-sm">
-				{ isThinking ? <ThinkingIndicator /> : message}
-			</div>
-			{ isThinking ? "" : <CitationPanel isgrounded={isgrounded} citations={citations} /> }
+		<div className="self-start max-w-[90%]">
+			<div className="bg-white text-sm leading-relaxed text-slate-800 px-4 py-3 rounded-lg rounded-tl-none shadow-sm space-y-3">
+				<div>
+          { isThinking ? <ThinkingIndicator /> : message}
+        </div>
+          { isThinking ? "" : <SystemMessageFooter isgrounded={isgrounded} citations={citations} /> }
+      </div>
 		</div>
   );
 }

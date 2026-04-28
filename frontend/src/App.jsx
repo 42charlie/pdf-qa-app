@@ -4,7 +4,7 @@ import Chat from "./components/Chat";
 import { useState } from "react";
 
 function App() {
-  const [retrievedChunks, setRetrievedChunks] = useState([]);
+  const [retrievedChunks, setRetrievedChunks] = useState(null);
 	const [activeTab, setActiveTab] = useState("text");
 
   return (

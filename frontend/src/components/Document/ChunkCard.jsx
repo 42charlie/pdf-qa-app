@@ -28,7 +28,7 @@ function ChunkCard({ index, chunk }) {
 		>
 			<div className="flex justify-between text-sm text-black">
 				<div className="flex gap-2 text-[10px]">
-					<span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 font-sans font-bold">
+					<span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 font-sans text-slate-600 font-extrabold">
 						#{chunk.id}
 					</span>
 					<span className={`rounded-md border px-2 py-1.5 ${score}`}>
