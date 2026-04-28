@@ -15,7 +15,7 @@ function SystemMessageFooter({ isgrounded, citations }) {
             Sources:
             <div className="ml-2 flex space-x-2 font-semibold">
               {citations.map((citation) => (
-                <div className="rounded-md border border-slate-200 bg-blue-50 px-1.5 py-0.5 font-semibold">
+                <div key={citation.id} className="rounded-md border border-slate-200 bg-blue-50 px-1.5 py-0.5 font-semibold">
                   {" "}
                   #{citation.id}{" "}
                 </div>

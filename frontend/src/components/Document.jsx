@@ -37,7 +37,7 @@ const chunks = [
 
 function Document( { retrievedChunks, setActiveTab, activeTab } ) {
 	const [chunkInfo, setChunkInfo] = useState(null);
-	// console.log("Document component rendered with retrievedChunks:", retrievedChunks);
+
 	return (
 		<div className="w-3/5 bg-white overflow-hidden flex flex-col border-r border-slate-200">
 			<Header documentinfo={documentInfo} setActiveTab={setActiveTab} activeTab={activeTab} />

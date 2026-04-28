@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { FiChevronRight, FiChevronDown, FiChevronUp } from "react-icons/fi";
 
-function ChunkCard({ index, chunk }) {
+function ChunkCard({ index, chunk, setSubTab, setShownChunk }) {
 	let score = "";
 	const [expanded, setExpanded] = useState(false);
 	const [isTruncated, setIsTruncated] = useState(false);
@@ -21,6 +21,11 @@ function ChunkCard({ index, chunk }) {
 		}
 	}, [chunk.preview]); // Re-run if the text ever changes
 
+	function HandleShowConext() {
+		setSubTab("context");
+		setShownChunk(chunk);
+	}
+
 	return (
 		<div
 			key={index}
@@ -35,7 +40,7 @@ function ChunkCard({ index, chunk }) {
 						Score: {chunk.dist}
 					</span>
 				</div>
-				<button className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 font-sans text-[10px] font-bold text-slate-400 duration-300 group-hover:text-slate-600 hover:border-blue-200 hover:bg-slate-100 hover:text-blue-600">
+				<button onClick={HandleShowConext} className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 font-sans text-[10px] font-bold text-slate-400 duration-300 group-hover:text-slate-600 hover:border-blue-200 hover:bg-slate-100 hover:text-blue-600">
 					Show context
 					<FiChevronRight />
 				</button>
