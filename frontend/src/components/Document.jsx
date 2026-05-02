@@ -13,14 +13,6 @@ Nullam id gravida mauris. Fusce luctus elementum tortor nec sagittis. Nunc fring
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sit amet aliquet tellus. Nam quis imperdiet velit. Nunc aliquet euismod volutpat. Proin mi turpis, tincidunt ac lacus ut, finibus rutrum purus. Aliquam nunc purus, tincidunt vel urna ut, vulputate venenatis nisi. Curabitur pellentesque ligula et consectetur laoreet. Mauris faucibus nulla est, quis dapibus enim lacinia at. Duis suscipit convallis blandit. Nam a magna augue. Curabitur vehicula facilisis lorem sit amet ornare. Maecenas vulputate lacus eget lorem convallis, at venenatis ante sagittis. Nunc tempus, mauris a pretium sodales, augue erat laoreet nibh, nec posuere tortor tortor ut neque. Sed porttitor, sapien ut laoreet congue, elit odio egestas nibh, quis tincidunt dolor lacus vel nisi.The compliance team has allocated a $2.4M budget to address these concerns by EOY. Furthermore, malicious inputs previously used to bypass the system have been identified and mitigated, ensuring the integrity of our operations moving forward.`;
 
-const documentInfo = {
-	name: "financial_report_2023.pdf",
-	size: "2.4 MB",
-	pages: 12,
-	textLength: 45210,
-	chunks: 14
-}
-
 const chunks = [
 	{ id: 0, length: 500, start: 0, end: 500 },
 	{ id: 1, length: 600, start: 500, end: 1100 },
@@ -35,12 +27,12 @@ const chunks = [
 ]
 //end of mock data
 
-function Document( { retrievedChunks, setActiveTab, activeTab } ) {
+function Document( { retrievedChunks, setActiveTab, activeTab, metadata } ) {
 	const [chunkInfo, setChunkInfo] = useState(null);
 
 	return (
 		<div className="w-3/5 bg-white overflow-hidden flex flex-col border-r border-slate-200">
-			<Header documentinfo={documentInfo} setActiveTab={setActiveTab} activeTab={activeTab} />
+			<Header setActiveTab={setActiveTab} activeTab={activeTab} metadata={metadata} />
 			{ activeTab === 'text' ?
 			<>
 				<TextViewer activeTab={activeTab} text={text} chunks={chunks} setChunkInfo={setChunkInfo} />

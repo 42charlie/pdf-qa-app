@@ -8,16 +8,17 @@ function App() {
 	const [retrievedChunks, setRetrievedChunks] = useState(null);
 	const [activeTab, setActiveTab] = useState("text");
 	const [page, setPage] = useState("home");
+	const [metadata, setMetadata] = useState(null);
 
 	return (
 		<div className="bg-white h-screen flex overflow-hidden">
 			<Banner />
 			{ page === "document" ? (
 				<>
-				<Document retrievedChunks={retrievedChunks} setActiveTab={setActiveTab} activeTab={activeTab}/>
+				<Document retrievedChunks={retrievedChunks} setActiveTab={setActiveTab} activeTab={activeTab} metadata={metadata} />
 				<Chat setRetrievedChunks={setRetrievedChunks} setActiveTab={setActiveTab}/>
 				</>
-			) : <Upload setPage={setPage} /> }
+			) : <Upload setPage={setPage} setMetadata={setMetadata} /> }
 
 		</div>
 	);

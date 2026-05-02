@@ -2,8 +2,8 @@ from fastapi import APIRouter, UploadFile, File
 from fastapi.responses import JSONResponse
 
 # Import service functions
-from services.file_validation import validate_document
-from services.storage import save_file
+from services.file_validation import sanitize_for_display, validate_document
+from services.storage import human_readable_size, save_file
 from services.text_extraction import extract_pages_from_pdf, validate_text, clean_txt
 from services.chunker import chunk_text
 from services.embedding import generate_embeddings, save_embeddings
@@ -15,9 +15,11 @@ route = APIRouter(prefix="/documents", tags=["Documents"])
 
 @route.post("/upload")
 async def upload(file: UploadFile = File(...)):
+
+	file.filename = sanitize_for_display(file.filename)
 	#Check file type
 	if not file or not validate_document(file):
-		return JSONResponse(content={"success": False, "message": "Invalid or unsupported file"}, status_code=400)
+		return JSONResponse(content={"success": False, "error": "Invalid or unsupported file"}, status_code=400)
 	
 	#save file to the uploads directory
 	uuid = save_file(file)
@@ -36,14 +38,26 @@ async def upload(file: UploadFile = File(...)):
 		chunk_ids = get_chunks_ids(uuid)
 	except Exception as e:
 		print(f"Database error: {e}")
-		return JSONResponse(content={"success": False, "message": "Database error"}, status_code=500)
+		return JSONResponse(content={"success": False, "error": "Database error"}, status_code=500)
 
 	#embed chunks and store embeddings in the vector database
 	chunks = [chunk['content'] for chunk in chunks]  #extract just the text for embedding
 	embeddings = generate_embeddings(chunks)
 	save_embeddings(embeddings, chunk_ids, uuid)
 
-	return JSONResponse(content={"success": True, "uuid": uuid, "message": "File uploaded successfully."})  # Return a preview of the extracted text
+	response = {
+		"success": True,
+		"document_id": uuid,
+		"metadata": {
+			"filename": file.filename,
+			"chunk_count": len(chunks),
+			"pages": pages[-1]['page'],
+			"character_count": len(validated_text),
+			"size": human_readable_size(file.size)
+		}
+	}
+
+	return JSONResponse(content=response) 
 
 @route.get("/{uuid}")
 async def get_document(uuid: str):

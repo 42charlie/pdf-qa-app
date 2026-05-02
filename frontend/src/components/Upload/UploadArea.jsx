@@ -1,7 +1,7 @@
 import { IoCloudUploadOutline, IoAlertCircleOutline, IoSyncOutline } from "react-icons/io5";
 import { useRef, useState } from "react";
 
-function UploadArea({ setPage }) {
+function UploadArea({ setPage, setMetadata }) {
 	const [isDragging, setIsDragging] = useState(false);
 	const [uploadedFile, setUploadedFile] = useState(null);
 	const [isUploading, setIsUploading] = useState(false);
@@ -92,7 +92,7 @@ function UploadArea({ setPage }) {
 			console.log("Upload successful! Backend response:", data);
 			
 			setPage("document");
-
+			setMetadata(data.metadata);
 		} catch (error) {
 			console.error("Error uploading file:", error);
 			setError("Failed to upload file. Please try again.");

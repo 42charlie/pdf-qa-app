@@ -1,7 +1,7 @@
 import { FaRegFileAlt } from "react-icons/fa";
 import UploadArea from "./Upload/UploadArea";
 
-function Upload({ setPage }) {
+function Upload({ setPage, setMetadata }) {
 
 	return (
 		<div className="relative flex bg-slate-50 h-screen w-screen justify-around">
@@ -12,7 +12,7 @@ function Upload({ setPage }) {
 					<h1 className="text-3xl font-bold self-center text-slate-700">Document Intelligence</h1>
 					<div className="self-center text-center w-full text-slate-500 text-sm px-3">Upload a document to instantly process its chunks, view contextual relationships, and generate fully grounded answers.</div>
 				</div>
-				<UploadArea setPage={setPage} />
+				<UploadArea setPage={setPage} setMetadata={setMetadata} />
 				<div className="space-y-3 w-full">
 					<div className="font-semibold text-xs text-slate-400">RECENT DOCUMENTS</div>
 					<div className="flex-col gap-1 bg-white p-4 rounded-xl border border-slate-200 hover:border-slate-300 duration-300 group">

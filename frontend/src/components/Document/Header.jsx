@@ -19,13 +19,13 @@ function Toggle({ setActiveTab, activeTab }) {
 			</button>
 		</div>)}
 
-function Header( { documentinfo, setActiveTab, activeTab } ) {
+function Header( { setActiveTab, activeTab, metadata } ) {
   return (
 	<>
 	<div className="w-full h-10 bg-slate-50 flex px-5 py-3 justify-between border-b border-slate-200">
 		<div className="flex items-center gap-3">
-			<span className="text-xs font-semibold text-slate-800 max-w-[40ch] truncate">{documentinfo.name}</span>
-			<span className="text-[10px] font-mono text-slate-500">{documentinfo.size} • {documentinfo.pages} Pages • {documentinfo.chunks} Chunks • {documentinfo.textLength} Character</span>
+			<span className="text-xs font-semibold text-slate-800 max-w-[40ch] truncate">{metadata.filename}</span>
+			<span className="text-[10px] font-mono text-slate-500">{metadata.size} • {metadata.pages} Pages • {metadata.chunk_count} Chunks • {metadata.character_count} Character</span>
 		</div>
 		<div className="flex items-center">
 			<button className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800"> <FiUpload /> Replace</button>
