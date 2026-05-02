@@ -17,7 +17,7 @@ function App() {
 				<Document retrievedChunks={retrievedChunks} setActiveTab={setActiveTab} activeTab={activeTab}/>
 				<Chat setRetrievedChunks={setRetrievedChunks} setActiveTab={setActiveTab}/>
 				</>
-			) : <Upload/> }
+			) : <Upload setPage={setPage} /> }
 
 		</div>
 	);
