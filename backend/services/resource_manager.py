@@ -2,7 +2,6 @@
 import os
 import asyncio
 from groq import Groq
-from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 
 _model = None
@@ -11,7 +10,6 @@ client = None
 def get_llm_client():
 	global client
 	if client is None:
-		load_dotenv()
 		client = Groq(api_key=os.getenv("API_KEY"))
 	return client
 

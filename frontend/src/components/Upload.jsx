@@ -7,7 +7,7 @@ function Upload({ setPage }) {
 		<div className="relative flex bg-slate-50 h-screen w-screen justify-around">
 			<div className="absolute top-[-5%] left-[-5%] w-[40%] h-[40%] rounded-full bg-blue-400/10 blur-[100px] pointer-events-none"></div>
         	<div className="absolute bottom-[-5%] right-[-5%] w-[40%] h-[40%] rounded-full bg-indigo-400/10 blur-[100px] pointer-events-none"></div>
-			<div className="flex flex-col p-5 gap-14 justify-center items-center max-w-2xl">
+			<div className="flex flex-col p-5 gap-8 justify-center items-center max-w-2xl">
 				<div className="flex flex-col gap-3 w-full">
 					<h1 className="text-3xl font-bold self-center text-slate-700">Document Intelligence</h1>
 					<div className="self-center text-center w-full text-slate-500 text-sm px-3">Upload a document to instantly process its chunks, view contextual relationships, and generate fully grounded answers.</div>

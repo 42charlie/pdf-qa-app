@@ -79,11 +79,19 @@ function UploadArea({ setPage }) {
 		formData.append("file", file); 
 
 		try {
-			// use a timeout to simulate upload time and show the uploading state
-			await new Promise((resolve) => setTimeout(() => {
-				setPage("document");
-				resolve();
-			}, 2000));
+			const response = await fetch(`${import.meta.env.VITE_API_URL}/documents/upload`, { 
+				method: "POST",
+				body: formData,
+			});
+
+			if (!response.ok) {
+				throw new Error(`Upload failed with status: ${response.status}`);
+			}
+
+			const data = await response.json();
+			console.log("Upload successful! Backend response:", data);
+			
+			setPage("document");
 
 		} catch (error) {
 			console.error("Error uploading file:", error);

@@ -1,11 +1,28 @@
 import asyncio
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from api import chat, documents
 from services.database import initialize_database
 from services.resource_manager import clean_inactive_documents
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+load_dotenv()
+origins = [
+    os.getenv("FRONTEND_URL")
+]
+
+# add the CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],  # allows all methods
+    allow_headers=["*"],  # allows all headers
+)
 
 @app.on_event("startup")
 async def startup_event():

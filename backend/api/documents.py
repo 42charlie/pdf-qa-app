@@ -39,6 +39,7 @@ async def upload(file: UploadFile = File(...)):
 		return JSONResponse(content={"success": False, "message": "Database error"}, status_code=500)
 
 	#embed chunks and store embeddings in the vector database
+	chunks = [chunk['content'] for chunk in chunks]  #extract just the text for embedding
 	embeddings = generate_embeddings(chunks)
 	save_embeddings(embeddings, chunk_ids, uuid)
 
