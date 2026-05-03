@@ -82,12 +82,12 @@ async def get_document_chunks(uuid: str):
 	''' Placeholder for fetching document chunks from the database '''
 	try:
 		if not document_exists(uuid):
-			return JSONResponse(content={"success": False, "message": "Document not found"}, status_code=404)
+			return JSONResponse(content={"success": False, "error": "Document not found. Please try again."}, status_code=404)
 		update_document_activity(uuid)
 		chunks = get_document_chunks_by_uuid(uuid)  # Implement this function to fetch chunks based on document UUID
 		text_preview = get_document_text(uuid)
 	except Exception as e:
 		print(f"Database error: {e}")
-		return JSONResponse(content={"success": False, "message": "Database error"}, status_code=500)
+		return JSONResponse(content={"success": False, "error": "Database error. Please try again."}, status_code=500)
 
 	return JSONResponse(content={"success": True, "text": text_preview, "chunks": chunks})

@@ -6,6 +6,7 @@ function TextViewer({ metadata, setChunkInfo }) {
 
 	const [text, setText] = useState("");
 	const [chunks, setChunks] = useState([]);
+	const [error, setError] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
 	
 	useEffect(() => {
@@ -20,13 +21,15 @@ function TextViewer({ metadata, setChunkInfo }) {
 				);
 
 				if (!response.ok) {
-					throw new Error(`Failed to get preview: ${response.status}`);
+					const errorData = await response.json();
+					throw new Error(errorData.error || `Failed to get preview: ${response.status}. Please try again.`);
 				}
 
 				const data = await response.json();
 				setText(data.text);
 				setChunks(data.chunks);
 			} catch (error) {
+				setError(error);
 				console.error("Error getting preview:", error);
 			} finally {
 				setIsLoading(false);
@@ -55,14 +58,20 @@ function TextViewer({ metadata, setChunkInfo }) {
 		setChunkInfo(null);
 	};
 
-	if (isLoading) {
+	if (isLoading || error) {
 		return (
 			<div className="overflow-y-auto flex-1 overflow-hidden bg-white p-6 pt-16 text-sm text-slate-600 font-mono whitespace-pre-wrap">
-				<div className="animate-pulse space-y-3">
-					<div className="h-4 bg-slate-100 rounded w-full"></div>
-					<div className="h-4 bg-slate-100 rounded w-5/6"></div>
-					<div className="h-4 bg-slate-100 rounded w-4/6"></div>
-				</div>
+				{error ? (
+					<div className="text-red-500 mt-4 bg-red-100 p-3 rounded">
+						{error.message}
+					</div>
+				) : (
+					<div className="animate-pulse space-y-3">
+						<div className="h-4 bg-slate-100 rounded w-full"></div>
+						<div className="h-4 bg-slate-100 rounded w-5/6"></div>
+						<div className="h-4 bg-slate-100 rounded w-4/6"></div>
+					</div>
+				)}
 			</div>
 		);
 	}
