@@ -11,11 +11,17 @@ def human_readable_size(size):
     return f"{size:.2f} {unit}"
 
 '''save the uploaded file to the uploads directory'''
-def save_file(file: UploadFile):
+def save_file(content: bytes) -> str:
 	uuid = os.urandom(16).hex()
 	with open(UPLOAD_DIR / uuid, "wb") as f:
-		content = file.file.read()
-		if len(content) > 1024 * 1024 * 10:  # Limit file size to 10MB
-			raise HTTPException(status_code=400, detail={"success": False, "uuid": None, "message": "File size exceeds the limit of 10MB."})
 		f.write(content)
 	return uuid
+
+def check_file_size(file) -> bytes:
+	'''Check if the file size is within the allowed limit (10MB)'''
+	content = bytearray()
+	while chunk := file.read(1024 * 1024):  # Read in 1MB chunks
+		content.extend(chunk)
+		if len(content) > 10 * 1024 * 1024:  # Check if size exceeds 10MB
+			return None
+	return len(content), bytes(content)

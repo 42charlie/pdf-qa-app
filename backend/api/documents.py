@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 # Import service functions
 from services.file_validation import sanitize_for_display, validate_document
-from services.storage import human_readable_size, save_file
+from services.storage import check_file_size, human_readable_size, save_file
 from services.text_extraction import extract_pages_from_pdf, validate_text, clean_txt
 from services.chunker import chunk_text
 from services.embedding import generate_embeddings, save_embeddings
@@ -22,7 +22,10 @@ async def upload(file: UploadFile = File(...)):
 		return JSONResponse(content={"success": False, "error": "Invalid or unsupported file"}, status_code=400)
 	
 	#save file to the uploads directory
-	uuid = save_file(file)
+	content_size, content = check_file_size(file.file)
+	if not content:
+		return JSONResponse(content={"success": False, "error": "File size exceeds the limit of 10MB."}, status_code=400)
+	uuid = save_file(content)
 
 	#extract text from the PDF (placeholder for actual extraction logic)
 	pages = extract_pages_from_pdf(uuid)
@@ -38,7 +41,7 @@ async def upload(file: UploadFile = File(...)):
 		chunk_ids = get_chunks_ids(uuid)
 	except Exception as e:
 		print(f"Database error: {e}")
-		return JSONResponse(content={"success": False, "error": "Database error"}, status_code=500)
+		return JSONResponse(content={"success": False, "error": "Database error, Please try again."}, status_code=500)
 
 	#embed chunks and store embeddings in the vector database
 	chunks = [chunk['content'] for chunk in chunks]  #extract just the text for embedding
@@ -53,7 +56,7 @@ async def upload(file: UploadFile = File(...)):
 			"chunk_count": len(chunks),
 			"pages": pages[-1]['page'],
 			"character_count": len(validated_text),
-			"size": human_readable_size(file.size)
+			"size": human_readable_size(content_size)
 		}
 	}
 
