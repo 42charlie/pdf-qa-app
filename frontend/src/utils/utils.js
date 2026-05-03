@@ -22,7 +22,7 @@ export function SegmentText(text, chunks) {
 		segments.push({
 			id: `${start}-${end}`,
 			text: segmentText,
-			chunks: overlappingChunks.map(chunk => chunk.id),
+			chunks: overlappingChunks.map(chunk => chunk.index),
             chunksData: overlappingChunks
 		});
 	}

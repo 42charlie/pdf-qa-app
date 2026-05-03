@@ -6,7 +6,7 @@ function Footer({ chunkInfo }) {
 				{ chunkInfo ? (
 					<>
 					<div className="flex items-center">
-						<span className="text-[10px] font-mono text-slate-400">Chunk id: {chunkInfo?.id != null ? chunkInfo.id : 'N/A'}</span>
+						<span className="text-[10px] font-mono text-slate-400">Chunk index: {chunkInfo?.index != null ? chunkInfo.index : 'N/A'}</span>
 					</div>
 					<div className="flex items-center">
 						<span className="text-[10px] font-mono text-slate-400">Start Char: {chunkInfo?.start != null ? chunkInfo.start : 'N/A'}</span>

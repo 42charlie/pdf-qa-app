@@ -1,6 +1,6 @@
 import sqlite3
 
-from config import DB_PATH
+from config import DB_PATH, PREVIEW_LENGTH
 
 INIT_QUERY = '''CREATE TABLE IF NOT EXISTS documents (
     id TEXT PRIMARY KEY,
@@ -115,8 +115,28 @@ def get_document_chunks_by_uuid(document_id):
 	try:
 		with sqlite3.connect(DB_PATH) as conn:
 			cursor = conn.cursor()
-			cursor.execute('SELECT id, chunk_index, text FROM chunks WHERE document_id = ? ORDER BY chunk_index', (document_id,))
-			return [row for row in cursor.fetchall()]
+			cursor.execute('SELECT chunk_index, chunk_length, start_char, end_char FROM chunks WHERE document_id = ? AND end_char <= ? ORDER BY chunk_index', (document_id, PREVIEW_LENGTH + 1000))
+			return [
+                {
+                    "index": row[0],
+                    "length": row[1],
+                    "start": row[2],
+                    "end": row[3]
+                }
+                for row in cursor.fetchall()
+            ]
+	except sqlite3.Error:
+		raise
+
+def get_document_text(document_id):
+	try:
+		with sqlite3.connect(DB_PATH) as conn:
+			cursor = conn.cursor()
+			cursor.execute('SELECT full_text FROM documents WHERE id = ?', (document_id,))
+			row = cursor.fetchone()
+			if row:
+				return row[0][:PREVIEW_LENGTH]
+			return None
 	except sqlite3.Error:
 		raise
 

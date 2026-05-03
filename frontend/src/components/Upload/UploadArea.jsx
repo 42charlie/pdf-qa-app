@@ -100,7 +100,6 @@ function UploadArea({ setPage, setMetadata }) {
       if (!response.ok) {
 		// Try to extract error message from response, fallback to generic message
 		const errorData = await response.json();
-		console.log("Upload error:", errorData);
         setError(
           errorData.error || "Failed to upload file. Please try again.",
         );

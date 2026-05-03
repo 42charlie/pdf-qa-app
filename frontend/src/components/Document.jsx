@@ -35,7 +35,7 @@ function Document( { retrievedChunks, setActiveTab, activeTab, metadata } ) {
 			<Header setActiveTab={setActiveTab} activeTab={activeTab} metadata={metadata} />
 			{ activeTab === 'text' ?
 			<>
-				<TextViewer activeTab={activeTab} text={text} chunks={chunks} setChunkInfo={setChunkInfo} />
+				<TextViewer activeTab={activeTab} metadata={metadata} setChunkInfo={setChunkInfo} />
 				<Footer chunkInfo={chunkInfo}/>
 			</> : <RetrievedChunks retrievedChunks={retrievedChunks}/> }
 		</div>

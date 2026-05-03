@@ -1,5 +1,7 @@
 from pathlib import Path
 
+PREVIEW_LENGTH = 10000
+
 #chunler configuration
 CHUNK_SIZE = 800
 OVERLAP_SIZE = 120

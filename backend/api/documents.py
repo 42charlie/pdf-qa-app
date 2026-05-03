@@ -9,7 +9,7 @@ from services.chunker import chunk_text
 from services.embedding import generate_embeddings, save_embeddings
 
 #database imports
-from services.database import get_chunks_ids, insert_document, insert_chunks, get_document_chunks_by_uuid, get_document_by_uuid, document_exists
+from services.database import get_chunks_ids, get_document_text, insert_document, insert_chunks, get_document_chunks_by_uuid, get_document_by_uuid, document_exists, update_document_activity
 
 route = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -50,8 +50,8 @@ async def upload(file: UploadFile = File(...)):
 
 	response = {
 		"success": True,
-		"document_id": uuid,
 		"metadata": {
+			"id": uuid,
 			"filename": file.filename,
 			"chunk_count": len(chunks),
 			"pages": pages[-1]['page'],
@@ -77,7 +77,7 @@ async def get_document(uuid: str):
 
 	return JSONResponse(content={"success": True, "document": document})
 
-@route.get("/{uuid}/chunks")
+@route.get("/{uuid}/preview")
 async def get_document_chunks(uuid: str):
 	''' Placeholder for fetching document chunks from the database '''
 	try:
@@ -85,8 +85,9 @@ async def get_document_chunks(uuid: str):
 			return JSONResponse(content={"success": False, "message": "Document not found"}, status_code=404)
 		update_document_activity(uuid)
 		chunks = get_document_chunks_by_uuid(uuid)  # Implement this function to fetch chunks based on document UUID
+		text_preview = get_document_text(uuid)
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "message": "Database error"}, status_code=500)
 
-	return JSONResponse(content={"success": True, "chunks": chunks})
+	return JSONResponse(content={"success": True, "text": text_preview, "chunks": chunks})
