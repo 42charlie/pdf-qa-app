@@ -29,3 +29,30 @@ export function SegmentText(text, chunks) {
 
 	return segments;
 }
+
+export function timeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    
+    // Get the difference in seconds
+    const diffInSeconds = Math.round((date - now) / 1000); 
+    const absDiff = Math.abs(diffInSeconds);
+
+    // Initialize the built-in formatter
+    const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+    // Figure out the right unit to use
+    if (absDiff < 60) {
+        return rtf.format(diffInSeconds, 'second'); // seconds ago
+    } else if (absDiff < 3600) {
+        return rtf.format(Math.round(diffInSeconds / 60), 'minute'); // minutes ago
+    } else if (absDiff < 86400) {
+        return rtf.format(Math.round(diffInSeconds / 3600), 'hour'); // hours ago
+    } else if (absDiff < 2592000) {
+        return rtf.format(Math.round(diffInSeconds / 86400), 'day'); // days ago
+    } else if (absDiff < 31536000) {
+        return rtf.format(Math.round(diffInSeconds / 2592000), 'month'); // months ago
+    } else {
+        return rtf.format(Math.round(diffInSeconds / 31536000), 'year'); // year ago
+    }
+}

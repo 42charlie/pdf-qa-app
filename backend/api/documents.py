@@ -77,6 +77,21 @@ async def get_document(uuid: str):
 
 	return JSONResponse(content={"success": True, "document": document})
 
+@route.get("/{uuid}/info")
+async def get_document_info(uuid: str):
+	''' Placeholder for fetching document metadata and chunks from the database '''
+	try:
+		update_document_activity(uuid)
+		document = get_document_by_uuid(uuid)  # Implement this function to fetch document metadata
+	except Exception as e:
+		print(f"Database error: {e}")
+		return JSONResponse(content={"success": False, "error": "Database error"}, status_code=500)
+
+	if not document:
+		return JSONResponse(content={"success": False, "error": "Document not found"}, status_code=404)
+
+	return JSONResponse(content={"success": True, "metadata": document})
+
 @route.get("/{uuid}/preview")
 async def get_document_chunks(uuid: str):
 	''' Placeholder for fetching document chunks from the database '''

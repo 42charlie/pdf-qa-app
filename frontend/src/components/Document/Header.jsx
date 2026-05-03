@@ -19,7 +19,7 @@ function Toggle({ setActiveTab, activeTab }) {
 			</button>
 		</div>)}
 
-function Header( { setActiveTab, activeTab, metadata } ) {
+function Header( { setActiveTab, activeTab, setPage, metadata  } ) {
   return (
 	<>
 	<div className="w-full h-10 bg-slate-50 flex px-5 py-3 justify-between border-b border-slate-200">
@@ -28,7 +28,9 @@ function Header( { setActiveTab, activeTab, metadata } ) {
 			<span className="text-[10px] font-mono text-slate-500">{metadata.size} • {metadata.pages} Pages • {metadata.chunk_count} Chunks • {metadata.character_count} Character</span>
 		</div>
 		<div className="flex items-center">
-			<button className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800"> <FiUpload /> Replace</button>
+			<button className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 cursor-pointer" onClick={() => setPage("home")}>
+				<FiUpload /> Replace
+			</button>
 		</div>
 	</div>
 	<div className="w-full h-0 flex justify-center bg-transparent relative">

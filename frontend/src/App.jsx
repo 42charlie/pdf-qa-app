@@ -15,7 +15,7 @@ function App() {
 			<Banner />
 			{ page === "document" ? (
 				<>
-				<Document retrievedChunks={retrievedChunks} setActiveTab={setActiveTab} activeTab={activeTab} metadata={metadata} />
+				<Document retrievedChunks={retrievedChunks} setPage={setPage} setActiveTab={setActiveTab} activeTab={activeTab} metadata={metadata} />
 				<Chat setRetrievedChunks={setRetrievedChunks} setActiveTab={setActiveTab}/>
 				</>
 			) : <Upload setPage={setPage} setMetadata={setMetadata} /> }

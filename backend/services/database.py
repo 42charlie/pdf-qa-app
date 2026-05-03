@@ -1,5 +1,6 @@
 import sqlite3
 
+from services.storage import human_readable_size
 from config import DB_PATH, PREVIEW_LENGTH
 
 INIT_QUERY = '''CREATE TABLE IF NOT EXISTS documents (
@@ -9,8 +10,8 @@ INIT_QUERY = '''CREATE TABLE IF NOT EXISTS documents (
     text_length INTEGER NOT NULL,
     chunks_count INTEGER NOT NULL,
 	pages_count INTEGER NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	last_activity_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+	last_activity_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
 );
 
 CREATE TABLE IF NOT EXISTS chunks (
@@ -21,7 +22,7 @@ CREATE TABLE IF NOT EXISTS chunks (
 	chunk_length INTEGER NOT NULL,
 	start_char INTEGER NULL,
 	end_char INTEGER NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
     FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
 );
 
@@ -88,16 +89,18 @@ def get_document_by_uuid(document_id):
 	try:
 		with sqlite3.connect(DB_PATH) as conn:
 			cursor = conn.cursor()
-			cursor.execute('SELECT id, original_filename, full_text, text_length, created_at FROM documents WHERE id = ?', (document_id,))
+			cursor.execute('SELECT id, original_filename, chunks_count, pages_count, text_length, created_at FROM documents WHERE id = ?', (document_id,))
 			row = cursor.fetchone()
 			if row:
 				return {
-					"id": row[0],
-					"original_filename": row[1],
-					"full_text": row[2],
-					"text_length": row[3],
-					"created_at": row[4]
-				}
+			"id": row[0],
+			"filename": row[1],
+			"chunk_count": row[2],
+			"pages": row[3],
+			"character_count": row[4],
+			"size": human_readable_size(row[4]),
+			"created_at": row[5]
+		}
 			return None
 	except sqlite3.Error:
 		raise
