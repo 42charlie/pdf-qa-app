@@ -79,7 +79,7 @@ def get_chunks_by_ids(chunks_ids):
 		with sqlite3.connect(DB_PATH) as conn:
 			cursor = conn.cursor()
 			placeholders = ','.join('?' for _ in chunks_ids)
-			query = f'SELECT id, text FROM chunks WHERE id IN ({placeholders})'
+			query = f'SELECT chunk_index, text FROM chunks WHERE id IN ({placeholders})'
 			cursor.execute(query, chunks_ids)
 			return [row for row in cursor.fetchall()]
 	except sqlite3.Error:

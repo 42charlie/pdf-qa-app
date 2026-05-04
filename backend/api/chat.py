@@ -7,7 +7,7 @@ from fastapi import APIRouter, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 from services.embedding import embed_question, get_relevant_chunks
-from services.database import get_chunks_by_ids
+from services.database import get_chunks_by_ids, update_document_activity
 
 class ChatRequest(BaseModel):
 	question: str
@@ -33,21 +33,21 @@ async def ask():
 async def ask_question(request: ChatRequest = Form(...)):
 	question = embed_question(request.question)
 	try:
-		update_document_activity(uuid)
+		update_document_activity(request.uuid)
 		chunks_ids, distances = get_relevant_chunks(question, request.uuid)
 		if min(distances) > 1.3:  # Threshold for relevance, based on empirical testing
-			return JSONResponse(content={"ok": True, "error": None, "data": json.loads(FALLBACK_RESPONSE), "relevant_chunks": None}, status_code=200)
+			return JSONResponse(content={"ok": True, "error": None, "data": json.loads(FALLBACK_RESPONSE), "relevant_chunks": []}, status_code=200)
 		chunks = get_chunks_by_ids(chunks_ids)
 	except Exception as e:
 		print(f"Error retrieving chunks: {e}")
-		return JSONResponse(content={"ok": False, "error": "Error retrieving relevant document chunks.", "data": None, "relevant_chunks": None}, status_code=500)
+		return JSONResponse(content={"ok": False, "error": "Error retrieving relevant document chunks.", "data": None, "relevant_chunks": []}, status_code=500)
 	prompt = craft_prompt(request.question, chunks)
 	client = get_llm_client()
 	response = request_llm_response(client, prompt)
 	if response["ok"]:
 		response["data"] = parse_llm_json(response['data'])
-		response["retrieved_chunks"] = relevant_chunks_to_json(chunks_ids, distances)
+		response["retrieved_chunks"] = relevant_chunks_to_json(chunks, distances)
 	else:
-		response["retrieved_chunks"] = None
+		response["retrieved_chunks"] = []
 
 	return JSONResponse(content=response)

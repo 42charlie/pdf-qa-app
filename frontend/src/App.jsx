@@ -16,7 +16,7 @@ function App() {
 			{ page === "document" ? (
 				<>
 				<Document retrievedChunks={retrievedChunks} setPage={setPage} setActiveTab={setActiveTab} activeTab={activeTab} metadata={metadata} />
-				<Chat setRetrievedChunks={setRetrievedChunks} setActiveTab={setActiveTab}/>
+				<Chat setRetrievedChunks={setRetrievedChunks} setActiveTab={setActiveTab} metadata={metadata}/>
 				</>
 			) : <Upload setPage={setPage} setMetadata={setMetadata} /> }
 

@@ -10,14 +10,14 @@ function ThinkingIndicator() {
   );
 }
 
-function SystemMessage({ message, isgrounded, citations, isThinking=false}) {
+function SystemMessage({ msg, isThinking=false}) {
 	return (
 		<div className="self-start max-w-[90%]">
-			<div className="bg-white text-sm leading-relaxed text-slate-800 px-4 py-3 rounded-lg rounded-tl-none shadow-sm space-y-3">
+			<div className={`${!isThinking && msg.error ? 'bg-red-100 text-red-500' : 'bg-white text-slate-800'} text-sm leading-relaxed px-4 py-3 rounded-lg rounded-tl-none shadow-sm space-y-3`}>
 				<div>
-          { isThinking ? <ThinkingIndicator /> : message}
+          { isThinking ? <ThinkingIndicator /> : msg.content}
         </div>
-          { isThinking ? "" : <SystemMessageFooter isgrounded={isgrounded} citations={citations} /> }
+          { isThinking ? "" : <SystemMessageFooter error={msg.error} isgrounded={msg.isgrounded} used_chunks={msg.used_chunks} /> }
       </div>
 		</div>
   );

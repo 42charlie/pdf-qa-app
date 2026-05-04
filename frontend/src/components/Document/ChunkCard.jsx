@@ -34,10 +34,10 @@ function ChunkCard({ index, chunk, setSubTab, setShownChunk }) {
 			<div className="flex justify-between text-sm text-black">
 				<div className="flex gap-2 text-[10px]">
 					<span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 font-sans text-slate-600 font-extrabold">
-						#{chunk.id}
+						#{chunk.index}
 					</span>
 					<span className={`rounded-md border px-2 py-1.5 ${score}`}>
-						Score: {chunk.dist}
+						Score: {chunk.distance.toFixed(2)}
 					</span>
 				</div>
 				<button onClick={HandleShowConext} className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 font-sans text-[10px] font-bold text-slate-400 duration-300 group-hover:text-slate-600 hover:border-blue-200 hover:bg-slate-100 hover:text-blue-600">
@@ -46,8 +46,8 @@ function ChunkCard({ index, chunk, setSubTab, setShownChunk }) {
 				</button>
 			</div>
 			<div className="pt-2 font-mono leading-relaxed text-slate-600">
-				<p className={expanded ? "" : "line-clamp-5"} ref={textRef}>
-					{chunk.preview}
+				<p className={expanded ? "" : "line-clamp-4"} ref={textRef}>
+					{chunk.text}
 				</p>
 				<div
 					className={`mt-1 flex cursor-pointer items-center justify-center gap-1 font-sans text-[11px] text-slate-300 transition-colors duration-300 hover:text-blue-600 ${isTruncated ? "block" : "hidden"}`}

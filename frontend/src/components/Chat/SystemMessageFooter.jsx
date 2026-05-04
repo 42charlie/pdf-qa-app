@@ -1,4 +1,5 @@
-function SystemMessageFooter({ isgrounded, citations }) {
+function SystemMessageFooter({ error, isgrounded, used_chunks }) {
+  if (error) return "";
   return (
     <div className="flex-col overflow-hidden border-t border-slate-100">
       <div className="flex justify-between pt-2">
@@ -10,14 +11,14 @@ function SystemMessageFooter({ isgrounded, citations }) {
             {isgrounded ? "Grounded" : "ungrounded"} Response
           </span>
         </div>
-        {isgrounded && citations.length > 0 && (
+        {isgrounded && used_chunks.length > 0 && (
           <span className="inline-flex items-center font-mono text-[10px] text-slate-400">
             Sources:
             <div className="ml-2 flex space-x-2 font-semibold">
-              {citations.map((citation) => (
-                <div key={citation.id} className="rounded-md border border-slate-200 bg-blue-50 px-1.5 py-0.5 font-semibold">
+              {used_chunks.map((chunkId) => (
+                <div key={chunkId} className="rounded-md border border-slate-200 bg-blue-50 px-1.5 py-0.5 font-semibold">
                   {" "}
-                  #{citation.id}{" "}
+                  #{chunkId}{" "}
                 </div>
               ))}
             </div>
