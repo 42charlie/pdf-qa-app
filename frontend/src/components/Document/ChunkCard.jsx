@@ -19,7 +19,7 @@ function ChunkCard({ index, chunk, setSubTab, setShownChunk }) {
 		if (element.scrollHeight > element.clientHeight) {
 			setIsTruncated(true);
 		}
-	}, [chunk.preview]); // Re-run if the text ever changes
+	}, [chunk.text]); // Re-run if the text ever changes
 
 	function HandleShowConext() {
 		setSubTab("context");
