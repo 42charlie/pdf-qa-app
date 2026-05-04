@@ -10,11 +10,15 @@ function Document( { retrievedChunks, setActiveTab, activeTab, metadata, setPage
 	return (
 		<div className="w-3/5 bg-white overflow-hidden flex flex-col border-r border-slate-200">
 			<Header setActiveTab={setActiveTab} activeTab={activeTab} setPage={setPage} metadata={metadata} />
-			{ activeTab === 'text' ?
-			<>
-				<TextViewer activeTab={activeTab} metadata={metadata} setChunkInfo={setChunkInfo} />
+
+			<div className={`flex flex-col flex-1 overflow-hidden ${activeTab === 'text' ? 'flex' : 'hidden'}`}>
+				<TextViewer metadata={metadata} setChunkInfo={setChunkInfo} />
 				<Footer chunkInfo={chunkInfo}/>
-			</> : <RetrievedChunks retrievedChunks={retrievedChunks}/> }
+			</div>
+
+			<div className={`flex flex-col flex-1 overflow-hidden ${activeTab !== 'text' ? 'flex' : 'hidden'}`}>
+				<RetrievedChunks retrievedChunks={retrievedChunks}/>
+			</div>
 		</div>
 	);
 }
