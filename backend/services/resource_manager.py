@@ -16,7 +16,7 @@ def get_llm_client():
 def get_model():
 	global _model
 	if _model is None:
-		_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+		_model = SentenceTransformer('BAAI/bge-small-en-v1.5')
 	return _model
 
 async def clean_inactive_documents():

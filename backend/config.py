@@ -3,8 +3,8 @@ from pathlib import Path
 PREVIEW_LENGTH = 10000
 
 #chunler configuration
-CHUNK_SIZE = 800
-OVERLAP_SIZE = 120
+CHUNK_SIZE = 1200
+OVERLAP_SIZE = 200
 MIN_CHUNK_SIZE = 100
 
 # Base directory of the project

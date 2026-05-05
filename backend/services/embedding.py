@@ -21,7 +21,8 @@ def generate_embeddings(chunks):
 
 def embed_question(question):
 	model = get_model()
-	embedding = model.encode([question])
+	bge_query = "Represent this sentence for searching relevant passages: " + question
+	embedding = model.encode([bge_query])
 	return embedding
 
 def get_relevant_chunks(question_embedding, uuid, top_k=3):
