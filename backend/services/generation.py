@@ -4,7 +4,7 @@ from config import SYSTEM_INSTRUCTION, FALLBACK_RESPONSE
 
 def craft_prompt(question, relevant_chunks):
 	''' Create a prompt that includes the system instruction, the question, and the relevant chunks '''
-	formatted_chunks = "\n\n".join([f"[CHUNK {chunk_index}]\n{chunk_text}" for chunk_index, chunk_text in relevant_chunks])
+	formatted_chunks = "\n\n".join([f"[CHUNK {chunk_index}]\n{chunk_text}" for chunk_index, chunk_text, _, _ in relevant_chunks])
 	prompt = f"""[USER QUESTION]
 	{question}
 
@@ -96,4 +96,4 @@ def request_llm_response(client, prompt):
 def relevant_chunks_to_json(chunks, distances):
     if not chunks or not distances or len(chunks) != len(distances):
         return []
-    return [{ "index" : chunk_index, "text": chunk_text, "distance": distance} for chunk_index, chunk_text, distance in zip([chunk[0] for chunk in chunks], [chunk[1] for chunk in chunks], distances)]
+    return [{ "index" : chunk_index, "text": chunk_text, "start_char": start_char, "end_char": end_char, "distance": distance} for chunk_index, chunk_text, start_char, end_char, distance in zip([chunk[0] for chunk in chunks], [chunk[1] for chunk in chunks], [chunk[2] for chunk in chunks], [chunk[3] for chunk in chunks], distances)]

@@ -79,7 +79,7 @@ def get_chunks_by_ids(chunks_ids):
 		with sqlite3.connect(DB_PATH) as conn:
 			cursor = conn.cursor()
 			placeholders = ','.join('?' for _ in chunks_ids)
-			query = f'SELECT chunk_index, text FROM chunks WHERE id IN ({placeholders})'
+			query = f'SELECT chunk_index, text, start_char, end_char FROM chunks WHERE id IN ({placeholders})'
 			cursor.execute(query, chunks_ids)
 			return [row for row in cursor.fetchall()]
 	except sqlite3.Error:
@@ -131,15 +131,24 @@ def get_document_chunks_by_uuid(document_id):
 	except sqlite3.Error:
 		raise
 
-def get_document_text(document_id):
+def get_document_text(document_id, start_char=0, end_char=PREVIEW_LENGTH):
 	try:
 		with sqlite3.connect(DB_PATH) as conn:
 			cursor = conn.cursor()
-			cursor.execute('SELECT full_text FROM documents WHERE id = ?', (document_id,))
+			cursor.execute('SELECT SUBSTR(full_text, ?, ?) FROM documents WHERE id = ?', (start_char + 1, end_char + 1, document_id,))
 			row = cursor.fetchone()
 			if row:
-				return row[0][:PREVIEW_LENGTH]
+				return row[0]
 			return None
+	except sqlite3.Error:
+		raise
+
+def get_chunk_context_by_index(document_id, chunk_index):
+	try:
+		with sqlite3.connect(DB_PATH) as conn:
+			cursor = conn.cursor()
+			cursor.execute('SELECT start_char, end_char FROM chunks WHERE document_id = ? AND chunk_index IN (?, ?, ?)', (document_id, chunk_index, chunk_index - 1, chunk_index + 1))
+			return [index for row in cursor.fetchall() for index in row]
 	except sqlite3.Error:
 		raise
 

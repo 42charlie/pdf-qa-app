@@ -17,7 +17,7 @@ function Document( { retrievedChunks, setActiveTab, activeTab, metadata, setPage
 			</div>
 
 			<div className={`flex flex-col flex-1 overflow-hidden ${activeTab !== 'text' ? 'flex' : 'hidden'}`}>
-				<RetrievedChunks retrievedChunks={retrievedChunks}/>
+				<RetrievedChunks retrievedChunks={retrievedChunks} metadata={metadata}/>
 			</div>
 		</div>
 	);

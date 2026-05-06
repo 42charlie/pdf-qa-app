@@ -3,7 +3,7 @@ import ChunkList from "./ChunkList";
 import ContextViewer from "./ContextViewer";
 import { BsChatDots, BsSearch } from "react-icons/bs";
 
-function RetrievedChunks({ retrievedChunks }) {
+function RetrievedChunks({ retrievedChunks, metadata }) {
 	const [subTab, setSubTab] = useState("list");
 	const [shownChunk, setShownChunk] = useState(null);
 	return (
@@ -37,7 +37,7 @@ function RetrievedChunks({ retrievedChunks }) {
 				subTab === "list" ? (
 					<ChunkList retrievedChunks={retrievedChunks} setShownChunk={setShownChunk} setSubTab={setSubTab}/>
 				) : (
-					<ContextViewer shownChunk={shownChunk} setSubTab={setSubTab}/>
+					<ContextViewer shownChunk={shownChunk} setSubTab={setSubTab} metadata={metadata}/>
 				)
 			)}
 			

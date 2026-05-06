@@ -9,7 +9,7 @@ from services.chunker import chunk_text
 from services.embedding import generate_embeddings, save_embeddings
 
 #database imports
-from services.database import get_chunks_ids, get_document_text, insert_document, insert_chunks, get_document_chunks_by_uuid, get_document_by_uuid, document_exists, update_document_activity
+from services.database import get_chunk_context_by_index, get_chunks_ids, get_document_text, insert_document, insert_chunks, get_document_chunks_by_uuid, get_document_by_uuid, document_exists, update_document_activity
 
 route = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -106,3 +106,22 @@ async def get_document_chunks(uuid: str):
 		return JSONResponse(content={"success": False, "error": "Database error. Please try again."}, status_code=500)
 
 	return JSONResponse(content={"success": True, "text": text_preview, "chunks": chunks})
+
+@route.get("/{uuid}/{chunk_index}/context")
+async def get_chunk_context(uuid: str, chunk_index: int):
+	''' Placeholder for fetching document chunks from the database '''
+	try:
+		if not document_exists(uuid):
+			return JSONResponse(content={"success": False, "error": "Document not found. Please try again."}, status_code=404)
+		update_document_activity(uuid)
+		index = get_chunk_context_by_index(uuid, chunk_index)
+		if not index:
+			return JSONResponse(content={"success": False, "error": "Chunk context not found. Please try again."}, status_code=404)
+		context = get_document_text(uuid, min(index), max(index))
+		if not context:
+			return JSONResponse(content={"success": False, "error": "Chunk context not found. Please try again."}, status_code=404)
+	except Exception as e:
+		print(f"Database error: {e}")
+		return JSONResponse(content={"success": False, "error": "Database error. Please try again."}, status_code=500)
+
+	return JSONResponse(content={"success": True, "context": {"text": context, "start_char": min(index), "end_char": max(index)}})
