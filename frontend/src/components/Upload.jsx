@@ -3,10 +3,11 @@ import UploadArea from "./Upload/UploadArea";
 import { timeAgo } from "../utils/utils.js";
 import { useEffect, useState } from "react";
 
-function Upload({ setPage, setMetadata }) {
+function Upload({ setPage, setMetadata, setRetrievedChunks }) {
 	const [docInfo, setDocInfo] = useState(null);
 	const [lastDocumentId, setLastDocumentId] = useState(localStorage.getItem('last_document'));
 
+	setRetrievedChunks(null); //clear retrieved chunks when on upload page
 	useEffect(() => {
 		const fetchRecentDocument = async () => {
 			try {

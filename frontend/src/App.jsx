@@ -18,7 +18,7 @@ function App() {
 				<Document retrievedChunks={retrievedChunks} setPage={setPage} setActiveTab={setActiveTab} activeTab={activeTab} metadata={metadata} />
 				<Chat setRetrievedChunks={setRetrievedChunks} setActiveTab={setActiveTab} metadata={metadata}/>
 				</>
-			) : <Upload setPage={setPage} setMetadata={setMetadata} /> }
+			) : <Upload setPage={setPage} setMetadata={setMetadata} setRetrievedChunks={setRetrievedChunks}/> }
 
 		</div>
 	);

@@ -19,25 +19,29 @@ function Toggle({ setActiveTab, activeTab }) {
 			</button>
 		</div>)}
 
-function Header( { setActiveTab, activeTab, setPage, metadata  } ) {
-  return (
-	<>
-	<div className="w-full h-10 bg-slate-50 flex px-5 py-3 justify-between border-b border-slate-200">
-		<div className="flex items-center gap-3">
-			<span className="text-xs font-semibold text-slate-800 max-w-[40ch] truncate">{metadata.filename}</span>
-			<span className="text-[10px] font-mono text-slate-500">{metadata.size} • {metadata.pages} Pages • {metadata.chunk_count} Chunks • {metadata.character_count} Character</span>
+function Header( { setActiveTab, activeTab, setPage, metadata	} ) {
+	const replaceHandler = () => {
+		setPage("home");
+		setActiveTab("text");
+	}
+	return (
+		<>
+		<div className="w-full h-10 bg-slate-50 flex px-5 py-3 justify-between border-b border-slate-200">
+			<div className="flex items-center gap-3">
+				<span className="text-xs font-semibold text-slate-800 max-w-[40ch] truncate">{metadata.filename}</span>
+				<span className="text-[10px] font-mono text-slate-500">{metadata.size} • {metadata.pages} Pages • {metadata.chunk_count} Chunks • {metadata.character_count} Character</span>
+			</div>
+			<div className="flex items-center">
+				<button className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 cursor-pointer" onClick={() => replaceHandler()}>
+					<FiUpload /> Replace
+				</button>
+			</div>
 		</div>
-		<div className="flex items-center">
-			<button className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 cursor-pointer" onClick={() => setPage("home")}>
-				<FiUpload /> Replace
-			</button>
+		<div className="w-full h-0 flex justify-center bg-transparent relative">
+			<Toggle setActiveTab={setActiveTab} activeTab={activeTab}/>
 		</div>
-	</div>
-	<div className="w-full h-0 flex justify-center bg-transparent relative">
-		<Toggle setActiveTab={setActiveTab} activeTab={activeTab}/>
-	</div>
-	</>
-  );
+		</>
+	);
 }
 
 export default Header;
