@@ -4,7 +4,7 @@ import TextViewer from "./Document/TextViewer";
 import RetrievedChunks from "./Document/RetrievedChunks";
 import { useState } from "react";
 
-function Document( { retrievedChunks, setActiveTab, activeTab, metadata, setPage } ) {
+function Document( { retrievedChunks, setActiveTab, activeTab, subTab, setSubTab, metadata, setPage } ) {
 	const [chunkInfo, setChunkInfo] = useState(null);
 
 	return (
@@ -17,7 +17,7 @@ function Document( { retrievedChunks, setActiveTab, activeTab, metadata, setPage
 			</div>
 
 			<div className={`flex flex-col flex-1 overflow-hidden ${activeTab !== 'text' ? 'flex' : 'hidden'}`}>
-				<RetrievedChunks retrievedChunks={retrievedChunks} metadata={metadata}/>
+				<RetrievedChunks retrievedChunks={retrievedChunks} metadata={metadata} subTab={subTab} setSubTab={setSubTab} />
 			</div>
 		</div>
 	);

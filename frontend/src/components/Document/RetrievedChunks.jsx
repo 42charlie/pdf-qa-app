@@ -3,8 +3,7 @@ import ChunkList from "./ChunkList";
 import ContextViewer from "./ContextViewer";
 import { BsChatDots, BsSearch } from "react-icons/bs";
 
-function RetrievedChunks({ retrievedChunks, metadata }) {
-	const [subTab, setSubTab] = useState("list");
+function RetrievedChunks({ retrievedChunks, metadata, subTab, setSubTab }) {
 	const [shownChunk, setShownChunk] = useState(null);
 	return (
 		<div className="flex-1 overflow-hidden overflow-y-auto bg-white p-6 pt-16 font-mono text-sm whitespace-pre-wrap text-slate-600 flex flex-col">

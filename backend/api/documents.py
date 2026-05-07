@@ -117,7 +117,7 @@ async def get_chunk_context(uuid: str, chunk_index: int):
 		index = get_chunk_context_by_index(uuid, chunk_index)
 		if not index:
 			return JSONResponse(content={"success": False, "error": "Chunk context not found. Please try again."}, status_code=404)
-		context = get_document_text(uuid, min(index), max(index))
+		context = get_document_text(uuid, min(index), max(index) - min(index))
 		if not context:
 			return JSONResponse(content={"success": False, "error": "Chunk context not found. Please try again."}, status_code=404)
 	except Exception as e:

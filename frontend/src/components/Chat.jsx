@@ -24,7 +24,7 @@ function Question( {inputValue, setInputValue, isThinking , onSubmit} ) {
 	);
 }
 
-function Chat( { setRetrievedChunks, setActiveTab, metadata } ) {
+function Chat( { setRetrievedChunks, setActiveTab, setSubTab, metadata } ) {
 	const [inputValue, setInputValue] = useState("");
 	const [isThinking, setIsThinking] = useState(false);
 	const [messages, setMessages] = useState([]);
@@ -73,6 +73,7 @@ function Chat( { setRetrievedChunks, setActiveTab, metadata } ) {
 			console.log("citations:", llmResponse.citations);
 			setRetrievedChunks(llmResponse.citations)
 			setActiveTab('retrieved');
+			setSubTab('list');
 			setMessages(prevMessages => [...prevMessages, llmResponse]);
 		} catch (error) {
 			const llmResponse = {

@@ -6,8 +6,9 @@ import { useState } from "react";
 
 function App() {
 	const [retrievedChunks, setRetrievedChunks] = useState(null);
-	const [activeTab, setActiveTab] = useState("text");
 	const [page, setPage] = useState("home");
+	const [activeTab, setActiveTab] = useState("text");
+	const [subTab, setSubTab] = useState("list");
 	const [metadata, setMetadata] = useState(null);
 
 	return (
@@ -15,8 +16,8 @@ function App() {
 			<Banner />
 			{ page === "document" ? (
 				<>
-				<Document retrievedChunks={retrievedChunks} setPage={setPage} setActiveTab={setActiveTab} activeTab={activeTab} metadata={metadata} />
-				<Chat setRetrievedChunks={setRetrievedChunks} setActiveTab={setActiveTab} metadata={metadata}/>
+				<Document retrievedChunks={retrievedChunks} setPage={setPage} setActiveTab={setActiveTab} subTab={subTab} setSubTab={setSubTab} activeTab={activeTab} metadata={metadata} />
+				<Chat setRetrievedChunks={setRetrievedChunks} setActiveTab={setActiveTab} setSubTab={setSubTab} metadata={metadata}/>
 				</>
 			) : <Upload setPage={setPage} setMetadata={setMetadata} setRetrievedChunks={setRetrievedChunks}/> }
 
