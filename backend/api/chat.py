@@ -1,13 +1,14 @@
 import json
 
-from config import FALLBACK_RESPONSE
-from services.generation import craft_prompt, request_llm_response, parse_llm_json, relevant_chunks_to_json
+from prompts import FALLBACK_RESPONSE
+from services.generation import request_llm_response, parse_llm_json, relevant_chunks_to_json
 from services.resource_manager import get_llm_client
 from fastapi import APIRouter, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 from services.embedding import embed_question, get_relevant_chunks
 from services.database import get_chunks_by_ids, update_document_activity
+from prompts import craft_prompt
 
 class ChatRequest(BaseModel):
 	question: str

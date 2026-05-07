@@ -5,3 +5,4 @@ myStuff
 database.db
 faiss_data
 .env
+prompts.py
