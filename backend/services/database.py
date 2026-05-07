@@ -131,11 +131,11 @@ def get_document_chunks_by_uuid(document_id):
 	except sqlite3.Error:
 		raise
 
-def get_document_text(document_id, start_char=0, end_char=PREVIEW_LENGTH):
+def get_document_text(document_id, start_char=0, length=PREVIEW_LENGTH):
 	try:
 		with sqlite3.connect(DB_PATH) as conn:
 			cursor = conn.cursor()
-			cursor.execute('SELECT SUBSTR(full_text, ?, ?) FROM documents WHERE id = ?', (start_char + 1, end_char + 1, document_id,))
+			cursor.execute('SELECT SUBSTR(full_text, ?, ?) FROM documents WHERE id = ?', (start_char + 1, length, document_id,))
 			row = cursor.fetchone()
 			if row:
 				return row[0]
