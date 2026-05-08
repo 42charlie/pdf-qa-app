@@ -77,7 +77,7 @@ function TextViewer({ metadata, setChunkInfo }) {
 	}
 
 	return (
-		<div className="overflow-y-auto flex-1 overflow-hidden bg-white p-6 pt-16 text-sm text-slate-600 font-mono whitespace-pre-wrap border-b border-slate-200">
+		<div className="relative overflow-y-auto flex-1 overflow-hidden bg-white p-6 pt-16 text-sm text-slate-600 font-mono whitespace-pre-wrap border-b border-slate-200">
 			{segments.map((segment) => {
 				const isHighlighted = activeChunkId !== null && segment.chunks.includes(activeChunkId);
 
@@ -98,9 +98,11 @@ function TextViewer({ metadata, setChunkInfo }) {
 					</span>
 				);
 			})}
-			<p className="text-xs text-center text-slate-400 font-medium pt-2 mt-2">
-    		— End of preview —
-			</p>
+			<div className="relative bg-transparent bottom-0 left-0 w-full overflow-visible">
+				<p className="absolute w-full h-16 bottom-0 bg-linear-to-t from-white via-white/90 to-transparent text-xs text-center text-slate-500 font-medium pt-12">
+				— End of preview —
+				</p>
+			</div>
 		</div>
 	);
 }
