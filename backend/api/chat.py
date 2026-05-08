@@ -35,7 +35,7 @@ async def ask_question(request: ChatRequest = Form(...)):
 	try:
 		update_document_activity(request.uuid)
 		chunks_ids, distances = get_relevant_chunks(question, request.uuid)
-		if min(distances) > 1.3:  # Threshold for relevance, based on empirical testing
+		if min(distances) > 0.85:  # Threshold for relevance, based on empirical testing
 			return JSONResponse(content={"ok": True, "error": None, "data": json.loads(FALLBACK_RESPONSE), "relevant_chunks": []}, status_code=200)
 		chunks = get_chunks_by_ids(chunks_ids)
 	except Exception as e:
@@ -50,12 +50,16 @@ async def ask_question(request: ChatRequest = Form(...)):
 	if not is_grounded_response(parsed_data):
 		# If it's ungrounded, malicious, or failed parsing, trigger the fallback
 		parsed_data = json.loads(FALLBACK_RESPONSE)
+		retrieved_chunks = []  # Don't include chunks if the response isn't grounded
+	else:
+		# If it's grounded, include the relevant chunks in the response for transparency
+		retrieved_chunks = relevant_chunks_to_json(chunks, distances)
 	
 	final_response = {
 		"ok": True,
 		"error": None,
 		"data": parsed_data,
-		"retrieved_chunks": relevant_chunks_to_json(chunks, distances)
+		"retrieved_chunks": retrieved_chunks
 	}
 
 	return JSONResponse(content=final_response)

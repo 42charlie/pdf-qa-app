@@ -161,7 +161,7 @@ def update_document_activity(document_id):
 	except sqlite3.Error as e:
 		raise
 
-def delete_inactive_documents(inactivity_threshold_hours=24):
+def clean_inactive_documents(inactivity_threshold_hours=48):
 	try:
 		with sqlite3.connect(DB_PATH) as conn:
 			cursor = conn.cursor()
