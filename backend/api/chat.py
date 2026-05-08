@@ -1,14 +1,13 @@
 import json
 
-from prompts import FALLBACK_RESPONSE
-from services.generation import request_llm_response, parse_llm_json, relevant_chunks_to_json
+from services.prompt import FALLBACK_RESPONSE
+from services.generation import craft_prompt, is_grounded_response, request_llm_response, parse_llm_json, relevant_chunks_to_json
 from services.resource_manager import get_llm_client
 from fastapi import APIRouter, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 from services.embedding import embed_question, get_relevant_chunks
 from services.database import get_chunks_by_ids, update_document_activity
-from prompts import craft_prompt
 
 class ChatRequest(BaseModel):
 	question: str
@@ -45,10 +44,18 @@ async def ask_question(request: ChatRequest = Form(...)):
 	prompt = craft_prompt(request.question, chunks)
 	client = get_llm_client()
 	response = request_llm_response(client, prompt)
-	if response["ok"]:
-		response["data"] = parse_llm_json(response['data'])
-		response["retrieved_chunks"] = relevant_chunks_to_json(chunks, distances)
-	else:
-		response["retrieved_chunks"] = []
+	if not response.get("ok"):
+		return JSONResponse(content={"ok": False, "error": response.get("error", "LLM generation failed."), "data": None, "relevant_chunks": []}, status_code=500)
+	parsed_data = parse_llm_json(response['data'])
+	if not is_grounded_response(parsed_data):
+		# If it's ungrounded, malicious, or failed parsing, trigger the fallback
+		parsed_data = json.loads(FALLBACK_RESPONSE)
+	
+	final_response = {
+		"ok": True,
+		"error": None,
+		"data": parsed_data,
+		"retrieved_chunks": relevant_chunks_to_json(chunks, distances)
+	}
 
-	return JSONResponse(content=response)
+	return JSONResponse(content=final_response)

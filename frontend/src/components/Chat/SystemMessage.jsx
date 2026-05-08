@@ -12,7 +12,7 @@ function ThinkingIndicator() {
 
 function SystemMessage({ msg, isThinking=false}) {
 	return (
-		<div className="self-start max-w-[90%]">
+		<div className="self-start max-w-[90%] wrap-break-word">
 			<div className={`${!isThinking && msg.error ? 'bg-red-100 text-red-500' : 'bg-white text-slate-800'} text-sm leading-relaxed px-4 py-3 rounded-lg rounded-tl-none shadow-sm space-y-3`}>
 				<div>
           { isThinking ? <ThinkingIndicator /> : msg.content}
