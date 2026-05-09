@@ -36,9 +36,9 @@ async def upload(file: UploadFile = File(...)):
 
 	#store document metadata and chunks in the database
 	try:
-		insert_document(uuid, file.filename, validated_text, len(chunks), pages[-1]['page'])
-		insert_chunks(chunks, uuid)
-		chunk_ids = get_chunks_ids(uuid)
+		await insert_document(uuid, file.filename, validated_text, len(chunks), pages[-1]['page'])
+		await insert_chunks(chunks, uuid)
+		chunk_ids = await get_chunks_ids(uuid)
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "error": "Database error, Please try again."}, status_code=500)
@@ -66,8 +66,8 @@ async def upload(file: UploadFile = File(...)):
 async def get_document(uuid: str):
 	''' Placeholder for fetching document metadata and chunks from the database '''
 	try:
-		update_document_activity(uuid)
-		document = get_document_by_uuid(uuid)  # Implement this function to fetch document metadata
+		await update_document_activity(uuid)
+		document = await get_document_by_uuid(uuid)  # Implement this function to fetch document metadata
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "message": "Database error"}, status_code=500)
@@ -81,8 +81,8 @@ async def get_document(uuid: str):
 async def get_document_info(uuid: str):
 	''' Placeholder for fetching document metadata and chunks from the database '''
 	try:
-		update_document_activity(uuid)
-		document = get_document_by_uuid(uuid)  # Implement this function to fetch document metadata
+		await update_document_activity(uuid)
+		document = await get_document_by_uuid(uuid)  # Implement this function to fetch document metadata
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "error": "Database error"}, status_code=500)
@@ -96,11 +96,11 @@ async def get_document_info(uuid: str):
 async def get_document_chunks(uuid: str):
 	''' Placeholder for fetching document chunks from the database '''
 	try:
-		if not document_exists(uuid):
+		if not await document_exists(uuid):
 			return JSONResponse(content={"success": False, "error": "Document not found. Please try again."}, status_code=404)
-		update_document_activity(uuid)
-		chunks = get_document_chunks_by_uuid(uuid)  # Implement this function to fetch chunks based on document UUID
-		text_preview = get_document_text(uuid)
+		await update_document_activity(uuid)
+		chunks = await get_document_chunks_by_uuid(uuid)  # Implement this function to fetch chunks based on document UUID
+		text_preview = await get_document_text(uuid)
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "error": "Database error. Please try again."}, status_code=500)
@@ -111,13 +111,13 @@ async def get_document_chunks(uuid: str):
 async def get_chunk_context(uuid: str, chunk_index: int):
 	''' Placeholder for fetching document chunks from the database '''
 	try:
-		if not document_exists(uuid):
+		if not await document_exists(uuid):
 			return JSONResponse(content={"success": False, "error": "Document not found. Please try again."}, status_code=404)
-		update_document_activity(uuid)
-		index = get_chunk_context_by_index(uuid, chunk_index)
+		await update_document_activity(uuid)
+		index = await get_chunk_context_by_index(uuid, chunk_index)
 		if not index:
 			return JSONResponse(content={"success": False, "error": "Chunk context not found. Please try again."}, status_code=404)
-		context = get_document_text(uuid, min(index), max(index) - min(index))
+		context = await get_document_text(uuid, min(index), max(index) - min(index))
 		if not context:
 			return JSONResponse(content={"success": False, "error": "Chunk context not found. Please try again."}, status_code=404)
 	except Exception as e:

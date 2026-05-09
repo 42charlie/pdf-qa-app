@@ -20,7 +20,7 @@ def get_model():
 async def clean_inactive_documents():
 	''' clean up documents that haven't been accessed in a while '''
 	while True:
-		await asyncio.sleep(10)  # Run cleanup every hour
+		await asyncio.sleep(3600)  # Run cleanup every hour
 		print("Running cleanup of inactive documents...")
 		try:
 			await delete_inactive_documents()
