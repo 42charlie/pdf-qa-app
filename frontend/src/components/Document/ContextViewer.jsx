@@ -46,7 +46,7 @@ function ContextViewer({ shownChunk, setSubTab, metadata }) {
 					Back to chunk list
 			</span>
 
-			<div className="flex-1 overflow-y-auto min-h-0 bg-white text-sm text-slate-600 font-mono whitespace-pre-wrap pr-2">
+			<div className="flex-1 overflow-y-auto min-h-0 bg-white text-sm text-slate-600 font-mono whitespace-pre-wrap pr-2 wrap-break-word">
 				{ isLoading || error ? (error ? (
 					<div className="text-red-500 mt-4 bg-red-100 p-3 rounded">
 						{error.message}

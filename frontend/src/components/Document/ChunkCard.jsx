@@ -2,13 +2,13 @@ import { useState, useRef, useEffect } from "react";
 import { FiChevronRight, FiChevronDown, FiChevronUp } from "react-icons/fi";
 
 function ChunkCard({ index, chunk, setSubTab, setShownChunk }) {
-	let score = "";
+	let score_colors = "";
 	const [expanded, setExpanded] = useState(false);
 	const [isTruncated, setIsTruncated] = useState(false);
 
-	if (index === 0) score = "text-emerald-600 bg-emerald-50 border-emerald-100";
-	else if (index === 1) score = "text-amber-600 bg-amber-50 border-amber-100";
-	else score = "text-slate-600 bg-slate-50 border-slate-200 ";
+	if (index === 0) score_colors = "text-emerald-600 bg-emerald-50 border-emerald-100";
+	else if (index === 1) score_colors = "text-amber-600 bg-amber-50 border-amber-100";
+	else score_colors = "text-slate-600 bg-slate-50 border-slate-200 ";
 
 	const textRef = useRef(null);
 
@@ -36,8 +36,8 @@ function ChunkCard({ index, chunk, setSubTab, setShownChunk }) {
 					<span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 font-sans text-slate-600 font-extrabold">
 						#{chunk.index}
 					</span>
-					<span className={`rounded-md border px-2 py-1.5 ${score}`}>
-						Score: {chunk.distance.toFixed(2)}
+					<span className={`rounded-md border px-2 py-1.5 ${score_colors}`}>
+						Score: {chunk.score.toFixed(2)}
 					</span>
 				</div>
 				<button onClick={HandleShowConext} className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5 font-sans text-[10px] font-bold text-slate-400 duration-300 group-hover:text-slate-600 hover:border-blue-200 hover:bg-slate-100 hover:text-blue-600">
