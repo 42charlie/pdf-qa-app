@@ -3,7 +3,7 @@ import asyncio
 from groq import Groq
 from functools import lru_cache
 from sentence_transformers import SentenceTransformer
-from services.database import clean_inactive_documents
+from services.database import delete_inactive_documents
 
 @lru_cache(maxsize=1)
 def get_llm_client():
@@ -20,8 +20,9 @@ def get_model():
 async def clean_inactive_documents():
 	''' clean up documents that haven't been accessed in a while '''
 	while True:
-		await asyncio.sleep(3600)  # Run cleanup every hour
+		await asyncio.sleep(10)  # Run cleanup every hour
+		print("Running cleanup of inactive documents...")
 		try:
-			clean_inactive_documents()
+			await delete_inactive_documents()
 		except Exception as e:
 			print(f"Error during cleanup: {e}")
