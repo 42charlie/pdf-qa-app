@@ -3,7 +3,7 @@ import asyncio
 from groq import AsyncGroq
 from functools import lru_cache
 from sentence_transformers import SentenceTransformer
-from services.database import delete_inactive_documents
+from db.postgres import delete_inactive_documents
 
 @lru_cache(maxsize=1)
 def get_llm_client():

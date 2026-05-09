@@ -6,10 +6,11 @@ from services.file_validation import sanitize_for_display, validate_document
 from services.storage import check_file_size, human_readable_size, save_file
 from services.text_extraction import extract_pages_from_pdf, validate_text, clean_txt
 from services.chunker import chunk_text
-from services.embedding import generate_embeddings, save_embeddings, get_chunk_context_by_index, get_document_chunks_by_uuid
+from services.embedding import generate_embeddings
+from db.qdrant import save_embeddings, get_chunk_context_by_index, get_document_chunks_by_uuid
 
 #database imports
-from services.database import get_document_text, insert_document, get_document_by_uuid, document_exists, update_document_activity
+from db.postgres import get_document_text, insert_document, get_document_by_uuid, document_exists, update_document_activity
 
 route = APIRouter(prefix="/documents", tags=["Documents"])
 

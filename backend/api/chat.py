@@ -5,8 +5,9 @@ from services.resource_manager import get_llm_client
 from fastapi import APIRouter, Form
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from services.embedding import embed_question, get_relevant_chunks
-from services.database import update_document_activity
+from db.qdrant import get_relevant_chunks
+from services.embedding import embed_question
+from db.postgres import update_document_activity
 
 class ChatRequest(BaseModel):
 	question: str

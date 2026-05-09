@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from api import chat, documents
-from services.embedding import init_qdrant
-from services.database import close_database, initialize_database
+from db.qdrant import init_qdrant
+from db.postgres import close_database, initialize_database
 from services.resource_manager import clean_inactive_documents
 from fastapi.middleware.cors import CORSMiddleware
 
