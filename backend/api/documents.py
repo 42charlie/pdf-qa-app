@@ -6,10 +6,10 @@ from services.file_validation import sanitize_for_display, validate_document
 from services.storage import check_file_size, human_readable_size, save_file
 from services.text_extraction import extract_pages_from_pdf, validate_text, clean_txt
 from services.chunker import chunk_text
-from services.embedding import generate_embeddings, save_embeddings
+from services.embedding import generate_embeddings, save_embeddings, get_chunk_context_by_index, get_document_chunks_by_uuid
 
 #database imports
-from services.database import get_chunk_context_by_index, get_chunks_ids, get_document_text, insert_document, insert_chunks, get_document_chunks_by_uuid, get_document_by_uuid, document_exists, update_document_activity
+from services.database import get_document_text, insert_document, get_document_by_uuid, document_exists, update_document_activity
 
 route = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -25,10 +25,10 @@ async def upload(file: UploadFile = File(...)):
 	content_size, content = check_file_size(file.file)
 	if not content:
 		return JSONResponse(content={"success": False, "error": "File size exceeds the limit of 10MB."}, status_code=400)
-	uuid = save_file(content)
+	document_id = save_file(content)
 
 	#extract text from the PDF (placeholder for actual extraction logic)
-	pages = extract_pages_from_pdf(uuid)
+	pages = extract_pages_from_pdf(document_id)
 	clean_text = clean_txt(pages)
 	validated_text = validate_text(clean_text)
 
@@ -36,22 +36,19 @@ async def upload(file: UploadFile = File(...)):
 
 	#store document metadata and chunks in the database
 	try:
-		await insert_document(uuid, file.filename, validated_text, len(chunks), pages[-1]['page'])
-		await insert_chunks(chunks, uuid)
-		chunk_ids = await get_chunks_ids(uuid)
+		await insert_document(document_id, file.filename, validated_text, len(chunks), pages[-1]['page'])
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "error": "Database error, Please try again."}, status_code=500)
 
 	#embed chunks and store embeddings in the vector database
-	chunks = [chunk['content'] for chunk in chunks]  #extract just the text for embedding
 	embeddings = generate_embeddings(chunks)
-	save_embeddings(embeddings, chunk_ids, uuid)
+	await save_embeddings(embeddings, chunks, document_id)
 
 	response = {
 		"success": True,
 		"metadata": {
-			"id": uuid,
+			"id": document_id,
 			"filename": file.filename,
 			"chunk_count": len(chunks),
 			"pages": pages[-1]['page'],
@@ -99,7 +96,7 @@ async def get_document_chunks(uuid: str):
 		if not await document_exists(uuid):
 			return JSONResponse(content={"success": False, "error": "Document not found. Please try again."}, status_code=404)
 		await update_document_activity(uuid)
-		chunks = await get_document_chunks_by_uuid(uuid)  # Implement this function to fetch chunks based on document UUID
+		chunks = await get_document_chunks_by_uuid(uuid)
 		text_preview = await get_document_text(uuid)
 	except Exception as e:
 		print(f"Database error: {e}")
@@ -114,14 +111,14 @@ async def get_chunk_context(uuid: str, chunk_index: int):
 		if not await document_exists(uuid):
 			return JSONResponse(content={"success": False, "error": "Document not found. Please try again."}, status_code=404)
 		await update_document_activity(uuid)
-		index = await get_chunk_context_by_index(uuid, chunk_index)
-		if not index:
+		index_pool = await get_chunk_context_by_index(uuid, chunk_index)
+		if not index_pool:
 			return JSONResponse(content={"success": False, "error": "Chunk context not found. Please try again."}, status_code=404)
-		context = await get_document_text(uuid, min(index), max(index) - min(index))
+		context = await get_document_text(uuid, min(index_pool), max(index_pool) - min(index_pool))
 		if not context:
 			return JSONResponse(content={"success": False, "error": "Chunk context not found. Please try again."}, status_code=404)
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "error": "Database error. Please try again."}, status_code=500)
 
-	return JSONResponse(content={"success": True, "context": {"text": context, "start_char": min(index), "end_char": max(index)}})
+	return JSONResponse(content={"success": True, "context": {"text": context, "start_char": min(index_pool), "end_char": max(index_pool)}})

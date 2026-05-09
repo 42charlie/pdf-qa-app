@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from api import chat, documents
+from services.embedding import init_qdrant
 from services.database import close_database, initialize_database
 from services.resource_manager import clean_inactive_documents
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,6 +20,7 @@ async def lifespan(app: FastAPI):
     # STARTUP
     try:
         await initialize_database(os.getenv("DATABASE_URL"))
+        await init_qdrant()
     except Exception as e:
         print(f"Error initializing database: {e}")
         raise

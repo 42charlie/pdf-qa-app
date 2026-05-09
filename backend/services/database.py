@@ -59,32 +59,6 @@ async def insert_document(document_id, original_filename, full_text, chunks_coun
         await conn.execute(query, document_id, original_filename, full_text, len(full_text), chunks_count, pages_count)
         return document_id
 
-async def insert_chunks(chunks, document_id):
-    ''' Insert chunks into the database with their metadata '''
-    formatted_chunks = [
-        (document_id, chunk_index, text.get('content', ''), len(text.get('content', '')), text.get('start_char'), text.get('end_char')) 
-        for chunk_index, text in enumerate(chunks)
-    ]
-    query = '''
-        INSERT INTO chunks (document_id, chunk_index, text, chunk_length, start_char, end_char)
-        VALUES ($1, $2, $3, $4, $5, $6)
-    '''
-    async with pool.acquire() as conn:
-        await conn.executemany(query, formatted_chunks)
-
-async def get_chunks_ids(document_id):
-    ''' Retrieve chunk IDs for a given document ID '''
-    async with pool.acquire() as conn:
-        records = await conn.fetch('SELECT id FROM chunks WHERE document_id = $1', document_id)
-        return [record['id'] for record in records]
-
-async def get_chunks_by_ids(chunks_ids):
-    ''' Retrieve chunk metadata for a list of chunk IDs '''
-    async with pool.acquire() as conn:
-        query = 'SELECT chunk_index, text, start_char, end_char FROM chunks WHERE id = ANY($1::int[])'
-        records = await conn.fetch(query, chunks_ids)
-        return [dict(record) for record in records]
-
 async def get_document_by_uuid(document_id):
     ''' Retrieve document metadata by its UUID '''
     async with pool.acquire() as conn:
@@ -108,43 +82,12 @@ async def document_exists(document_id):
         row = await conn.fetchval('SELECT 1 FROM documents WHERE id = $1', document_id)
         return row is not None
 
-async def get_document_chunks_by_uuid(document_id):
-    ''' Retrieve chunk metadata for a document, ordered by chunk index '''
-    async with pool.acquire() as conn:
-        query = '''
-            SELECT chunk_index, chunk_length, start_char, end_char 
-            FROM chunks 
-            WHERE document_id = $1 AND end_char <= $2 
-            ORDER BY chunk_index
-        '''
-        records = await conn.fetch(query, document_id, PREVIEW_LENGTH + 1000)
-        return [
-            {
-                "index": row['chunk_index'],
-                "length": row['chunk_length'],
-                "start": row['start_char'],
-                "end": row['end_char']
-            }
-            for row in records
-        ]
-
 async def get_document_text(document_id, start_char=0, length=PREVIEW_LENGTH):
     ''' Retrieve a substring of the document's full text based on character offsets '''
     async with pool.acquire() as conn:
         query = 'SELECT SUBSTR(full_text, $1, $2) FROM documents WHERE id = $3'
         text = await conn.fetchval(query, start_char + 1, length, document_id)
         return text
-
-async def get_chunk_context_by_index(document_id, chunk_index):
-    ''' Retrieve the character offsets for a chunk and its immediate neighbors to provide context '''
-    async with pool.acquire() as conn:
-        query = '''
-            SELECT start_char, end_char 
-            FROM chunks 
-            WHERE document_id = $1 AND chunk_index = ANY($2::int[])
-        '''
-        records = await conn.fetch(query, document_id, [chunk_index, chunk_index - 1, chunk_index + 1])
-        return [index for row in records for index in (row['start_char'], row['end_char'])]
 
 async def update_document_activity(document_id):
     ''' Update the last activity timestamp for a document '''

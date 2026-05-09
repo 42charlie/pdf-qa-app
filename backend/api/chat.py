@@ -6,7 +6,7 @@ from fastapi import APIRouter, Form
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from services.embedding import embed_question, get_relevant_chunks
-from services.database import get_chunks_by_ids, update_document_activity
+from services.database import update_document_activity
 
 class ChatRequest(BaseModel):
 	question: str
@@ -19,10 +19,9 @@ async def ask_question(request: ChatRequest = Form(...)):
 	question = embed_question(request.question)
 	try:
 		await update_document_activity(request.uuid)
-		chunks_ids, distances = get_relevant_chunks(question, request.uuid)
-		if min(distances) > 0.85:  # Threshold for relevance, based on empirical testing
+		chunks, distances = await get_relevant_chunks(question, request.uuid)
+		if max(distances) < 0.40:  # Threshold for relevance, based on empirical testing
 			return JSONResponse(content={"ok": True, "error": None, "data": json.loads(FALLBACK_RESPONSE), "relevant_chunks": []}, status_code=200)
-		chunks = await get_chunks_by_ids(chunks_ids)
 	except Exception as e:
 		print(f"Error retrieving chunks: {e}")
 		return JSONResponse(content={"ok": False, "error": "Error retrieving relevant document chunks.", "data": None, "relevant_chunks": []}, status_code=500)

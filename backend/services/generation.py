@@ -119,7 +119,7 @@ def is_grounded_response(parsed_data: dict):
             
     return False
 
-def relevant_chunks_to_json(chunks, distances):
-    if not chunks or not distances or len(chunks) != len(distances):
+def relevant_chunks_to_json(chunks, scores):
+    if not chunks or not scores or len(chunks) != len(scores):
         return []
-    return [{ "index" : chunk['chunk_index'], "text": chunk['text'], "start_char": chunk['start_char'], "end_char": chunk['end_char'], "distance": distance} for chunk, distance in zip(chunks, distances)]
+    return [{ "index" : chunk['chunk_index'], "text": chunk['text'], "start_char": chunk['start_char'], "end_char": chunk['end_char'], "score": score} for chunk, score in zip(chunks, scores)]

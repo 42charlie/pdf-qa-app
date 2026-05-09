@@ -1,6 +1,5 @@
-from fastapi import UploadFile, HTTPException
 from config import UPLOAD_DIR
-import os
+import uuid
 
 def human_readable_size(size):
     """Convert bytes to human readable format"""
@@ -12,10 +11,10 @@ def human_readable_size(size):
 
 '''save the uploaded file to the uploads directory'''
 def save_file(content: bytes) -> str:
-	uuid = os.urandom(16).hex()
-	with open(UPLOAD_DIR / uuid, "wb") as f:
+	document_id = str(uuid.uuid4())
+	with open(UPLOAD_DIR / document_id, "wb") as f:
 		f.write(content)
-	return uuid
+	return document_id
 
 def check_file_size(file) -> bytes:
 	'''Check if the file size is within the allowed limit (10MB)'''
