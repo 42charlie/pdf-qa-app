@@ -18,7 +18,7 @@ origins = [
 async def lifespan(app: FastAPI):
     # STARTUP
     try:
-        initialize_database()
+        await initialize_database(os.getenv("DATABASE_URL"))
     except Exception as e:
         print(f"Error initializing database: {e}")
         raise

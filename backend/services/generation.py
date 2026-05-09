@@ -5,7 +5,7 @@ from services.prompt import SYSTEM_INSTRUCTION, FALLBACK_RESPONSE
 def craft_prompt(question, relevant_chunks):
     ''' Create a prompt that includes the user question and the chunks '''
     
-    formatted_chunks = "\n\n".join([f"---[[CHUNK ID: {chunk_index}]]---\n{chunk_text}" for chunk_index, chunk_text, _, _ in relevant_chunks])
+    formatted_chunks = "\n\n".join([f"---[[CHUNK ID: {chunk['chunk_index']}]]---\n{chunk['text']}" for chunk in relevant_chunks])
     
     prompt = f"""<user_question>
 {question}
@@ -69,11 +69,11 @@ def extract_content(response):
     except Exception:
         return None
 
-def request_llm_response(client, prompt):
+async def request_llm_response(client, prompt):
 	'''Generate a response using the LLM, with robust error handling and security measures'''
 
 	try:
-		response = client.chat.completions.create(
+		response = await client.chat.completions.create(
 			model="llama-3.1-8b-instant",
 			messages=[
 				{"role": "system", "content": SYSTEM_INSTRUCTION},
@@ -122,4 +122,4 @@ def is_grounded_response(parsed_data: dict):
 def relevant_chunks_to_json(chunks, distances):
     if not chunks or not distances or len(chunks) != len(distances):
         return []
-    return [{ "index" : chunk_index, "text": chunk_text, "start_char": start_char, "end_char": end_char, "distance": distance} for chunk_index, chunk_text, start_char, end_char, distance in zip([chunk[0] for chunk in chunks], [chunk[1] for chunk in chunks], [chunk[2] for chunk in chunks], [chunk[3] for chunk in chunks], distances)]
+    return [{ "index" : chunk['chunk_index'], "text": chunk['text'], "start_char": chunk['start_char'], "end_char": chunk['end_char'], "distance": distance} for chunk, distance in zip(chunks, distances)]

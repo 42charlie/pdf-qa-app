@@ -1,6 +1,6 @@
 import os
 import asyncio
-from groq import Groq
+from groq import AsyncGroq
 from functools import lru_cache
 from sentence_transformers import SentenceTransformer
 from services.database import delete_inactive_documents
@@ -9,7 +9,7 @@ from services.database import delete_inactive_documents
 def get_llm_client():
 	''' Initialize and cache the Groq client '''
 	print("Initializing Groq client...")
-	return Groq(api_key=os.getenv("API_KEY"))
+	return AsyncGroq(api_key=os.getenv("API_KEY"))
 
 @lru_cache(maxsize=1)
 def get_model():
@@ -20,7 +20,7 @@ def get_model():
 async def clean_inactive_documents():
 	''' clean up documents that haven't been accessed in a while '''
 	while True:
-		await asyncio.sleep(3600)  # Run cleanup every hour
+		await asyncio.sleep(100)  # Run cleanup every hour
 		print("Running cleanup of inactive documents...")
 		try:
 			await delete_inactive_documents()

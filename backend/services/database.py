@@ -36,16 +36,12 @@ CREATE INDEX IF NOT EXISTS idx_chunks_document_id_chunk_index ON chunks(document
 '''
 
 async def initialize_database(db_url: str):
-    """Initialize the database connection pool and create tables if they don't exist."""
-    global pool
-    try:
-        # Create a connection pool
-        pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
-        async with pool.acquire() as conn:
-            await conn.execute(INIT_QUERY)
-    except Exception as e:
-        print(f"Database initialization failed: {e}")
-        raise
+	"""Initialize the database connection pool and create tables if they don't exist."""
+	global pool
+	# Create a connection pool
+	pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+	async with pool.acquire() as conn:
+		await conn.execute(INIT_QUERY)
 
 async def close_database():
     """Close the database connection pool."""

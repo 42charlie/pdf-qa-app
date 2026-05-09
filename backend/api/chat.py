@@ -28,7 +28,7 @@ async def ask_question(request: ChatRequest = Form(...)):
 		return JSONResponse(content={"ok": False, "error": "Error retrieving relevant document chunks.", "data": None, "relevant_chunks": []}, status_code=500)
 	prompt = craft_prompt(request.question, chunks)
 	client = get_llm_client()
-	response = request_llm_response(client, prompt)
+	response = await request_llm_response(client, prompt)
 	if not response.get("ok"):
 		return JSONResponse(content={"ok": False, "error": response.get("error", "LLM generation failed."), "data": None, "relevant_chunks": []}, status_code=500)
 	parsed_data = parse_llm_json(response['data'])
