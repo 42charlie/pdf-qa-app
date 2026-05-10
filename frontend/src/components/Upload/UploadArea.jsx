@@ -29,10 +29,10 @@ function UploadArea({ setPage, setMetadata }) {
     message = error;
     subMessage = "Click or drag to try again";
   } else if (uploadStatus === "uploading") {
-    icon = <IoCloudUploadOutline className="h-8 w-8 animate-bounce" />;
+    icon = <IoCloudUploadOutline className="h-8 w-8" />;
     iconColors = "bg-blue-50 text-blue-500";
     boxStyles = "border-blue-300 bg-blue-50/30 pointer-events-none";
-    message = "Uploading PDF...";
+    message = "Uploading document...";
     subMessage = "Sending to server";
   } else if (uploadStatus === "processing") {
     icon = <IoCogOutline className="h-8 w-8 animate-spin" />;
