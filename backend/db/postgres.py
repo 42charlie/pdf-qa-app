@@ -19,20 +19,6 @@ CREATE TABLE IF NOT EXISTS documents (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     last_activity_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE TABLE IF NOT EXISTS chunks (
-    id SERIAL PRIMARY KEY,
-    document_id TEXT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
-    chunk_index INTEGER NULL,
-    text TEXT NOT NULL,
-    chunk_length INTEGER NOT NULL,
-    start_char INTEGER NULL,
-    end_char INTEGER NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_chunks_document_id ON chunks(document_id);
-CREATE INDEX IF NOT EXISTS idx_chunks_document_id_chunk_index ON chunks(document_id, chunk_index);
 '''
 
 async def initialize_database(db_url: str):
@@ -102,5 +88,8 @@ async def delete_inactive_documents(inactivity_threshold_hours=48):
         query = '''
             DELETE FROM documents
             WHERE last_activity_at < CURRENT_TIMESTAMP - $1::interval
+            RETURNING id
         '''
-        await conn.execute(query, threshold)
+        records = await conn.fetch(query, threshold)
+
+        return [record['id'] for record in records]

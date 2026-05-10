@@ -130,3 +130,18 @@ async def get_document_chunks_by_uuid(document_id: str):
 		}
 		for record in records
 	]
+
+async def delete_document_chunks(document_id: str):
+	"""Deletes all chunks and vectors belonging to a specific document"""
+
+	await qdrant.delete(
+		collection_name=COLLECTION_NAME,
+		points_selector=Filter(
+			must=[
+				FieldCondition(
+					key="document_id",
+					match=MatchValue(value=document_id)
+				)
+			]
+		)
+	)
