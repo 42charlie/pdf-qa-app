@@ -5,7 +5,7 @@ from services.prompt import SYSTEM_INSTRUCTION, FALLBACK_RESPONSE
 def craft_prompt(question, relevant_chunks):
     ''' Create a prompt that includes the user question and the chunks '''
     
-    formatted_chunks = "\n\n".join([f"---[[CHUNK ID: {chunk['chunk_index']}]]---\n{chunk['text']}" for chunk in relevant_chunks])
+    formatted_chunks = "\n\n".join([f"<chunk id=\"{chunk['chunk_index']}\">\n{chunk['text']}\n</chunk>" for chunk in relevant_chunks])
     
     prompt = f"""<user_question>
 {question}
