@@ -33,11 +33,11 @@ def validate_document(file: UploadFile):
 	return True
 
 def sanitize_for_display(filename: str) -> str:
-    #remove control characters (non-printable)
-    clean_name = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', filename)
+    # Remove any characters that are not letters, numbers, spaces, or common punctuation
+    clean_name = re.sub(r'[^\w \-_.\(\)]', '', filename)
 
-    #if it's longer than 100 chars keep the first 90 chars and the last 10
-    if len(clean_name) > 100:
-        clean_name = clean_name[:90] + "..." + clean_name[-7:]
+    #if it's longer than 30 chars keep the first 20 chars and the last 10
+    if len(clean_name) > 30:
+        clean_name = clean_name[:20] + "..." + clean_name[-10:]
         
     return clean_name.strip() or "Untitled Document.pdf"
