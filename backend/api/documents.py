@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 from fastapi.responses import JSONResponse
 
 # Import service functions
@@ -6,8 +6,8 @@ from services.file_validation import sanitize_for_display, validate_document
 from services.storage import check_file_size, human_readable_size, save_file
 from services.text_extraction import extract_pages_from_pdf, validate_text, clean_txt
 from services.chunker import chunk_text
-from services.embedding import generate_embeddings
-from db.qdrant import save_embeddings, get_chunk_context_by_index, get_document_chunks_by_uuid
+from services.embedding import process_embeddings_background
+from db.qdrant import get_chunk_context_by_index, get_document_chunks_by_uuid
 
 #database imports
 from db.postgres import get_document_text, insert_document, get_document_by_uuid, document_exists, update_document_activity
@@ -15,7 +15,7 @@ from db.postgres import get_document_text, insert_document, get_document_by_uuid
 route = APIRouter(prefix="/documents", tags=["Documents"])
 
 @route.post("/upload")
-async def upload(file: UploadFile = File(...)):
+async def upload(file: UploadFile = File(...), background_tasks: BackgroundTasks = None):
 
 	file.filename = sanitize_for_display(file.filename)
 	#Check file type
@@ -43,8 +43,7 @@ async def upload(file: UploadFile = File(...)):
 		return JSONResponse(content={"success": False, "error": "Database error, Please try again."}, status_code=500)
 
 	#embed chunks and store embeddings in the vector database
-	embeddings = generate_embeddings(chunks)
-	await save_embeddings(embeddings, chunks, document_id)
+	background_tasks.add_task(process_embeddings_background, chunks, document_id)
 
 	response = {
 		"success": True,
@@ -58,7 +57,17 @@ async def upload(file: UploadFile = File(...)):
 		}
 	}
 
-	return JSONResponse(content=response) 
+	return JSONResponse(content=response)
+
+@route.get("/{uuid}/status")
+async def check_processing_status(uuid: str):
+    """Checks if Qdrant has finished saving the chunks"""
+    try:
+        chunks = await get_document_chunks_by_uuid(uuid)
+        is_ready = len(chunks) > 0
+        return JSONResponse(content={"success": True, "ready": is_ready})
+    except Exception:
+        return JSONResponse(content={"success": True, "ready": False})
 
 @route.get("/{uuid}")
 async def get_document(uuid: str):

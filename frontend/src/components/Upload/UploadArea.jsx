@@ -2,13 +2,15 @@ import {
   IoCloudUploadOutline,
   IoAlertCircleOutline,
   IoSyncOutline,
+  IoCogOutline,
 } from "react-icons/io5";
 import { useRef, useState } from "react";
 
 function UploadArea({ setPage, setMetadata }) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
+
+  const [uploadStatus, setUploadStatus] = useState("idle"); // 'idle' | 'uploading' | 'processing'
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -26,12 +28,18 @@ function UploadArea({ setPage, setMetadata }) {
     boxStyles = "border-red-300 bg-red-50/30 hover:border-red-400";
     message = error;
     subMessage = "Click or drag to try again";
-  } else if (isUploading) {
-    icon = <IoSyncOutline className="h-8 w-8 animate-spin" />;
+  } else if (uploadStatus === "uploading") {
+    icon = <IoCloudUploadOutline className="h-8 w-8 animate-bounce" />;
     iconColors = "bg-blue-50 text-blue-500";
     boxStyles = "border-blue-300 bg-blue-50/30 pointer-events-none";
-    message = "Uploading & Processing...";
-    subMessage = "Please wait";
+    message = "Uploading PDF...";
+    subMessage = "Sending to server";
+  } else if (uploadStatus === "processing") {
+    icon = <IoCogOutline className="h-8 w-8 animate-spin" />;
+    iconColors = "bg-indigo-50 text-indigo-500";
+    boxStyles = "border-indigo-300 bg-indigo-50/30 pointer-events-none";
+    message = "Building AI Memory...";
+    subMessage = "Generating embeddings (takes ~15s)";
   } else if (isDragging) {
     icon = <IoCloudUploadOutline className="h-10 w-10" />;
     iconColors = "bg-blue-100 text-blue-600";
@@ -43,7 +51,7 @@ function UploadArea({ setPage, setMetadata }) {
   const handleDragOver = (e) => {
     e.preventDefault();
     setError(null);
-    if (!isUploading) setIsDragging(true);
+    if (uploadStatus === "idle") setIsDragging(true);
   };
 
   const handleDragLeave = (e) => {
@@ -56,7 +64,7 @@ function UploadArea({ setPage, setMetadata }) {
     setIsDragging(false);
 
     if (
-      !isUploading &&
+      uploadStatus === "idle" &&
       e.dataTransfer.files &&
       e.dataTransfer.files.length > 0
     ) {
@@ -65,7 +73,7 @@ function UploadArea({ setPage, setMetadata }) {
   };
 
   const handleClick = () => {
-    if (!isUploading) fileInputRef.current.click();
+    if (uploadStatus === "idle") fileInputRef.current.click();
   };
 
   const handleFileChange = (e) => {
@@ -83,7 +91,7 @@ function UploadArea({ setPage, setMetadata }) {
     }
 
     setUploadedFile(file);
-    setIsUploading(true);
+    setUploadStatus("uploading");
 
     const formData = new FormData();
     formData.append("file", file);
@@ -98,7 +106,6 @@ function UploadArea({ setPage, setMetadata }) {
       );
 
       if (!response.ok) {
-        // Try to extract error message from response, fallback to generic message
         const errorData = await response.json();
         throw new Error(
           errorData.error ||
@@ -107,16 +114,32 @@ function UploadArea({ setPage, setMetadata }) {
       }
 
       const data = await response.json();
+      const documentId = data.metadata.id;
 
+      setUploadStatus("processing"); 
+
+      // The Polling Loop
+      let isReady = false;
+      while (!isReady) {
+        const statusRes = await fetch(`${import.meta.env.VITE_API_URL}/documents/${documentId}/status`);
+        const statusData = await statusRes.json();
+        
+        if (statusData.ready) {
+            isReady = true;
+        } else {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+
+      //Everything is done. Enter the Chat
       setPage("document");
       setMetadata(data.metadata);
-      localStorage.setItem("last_document", data.metadata.id);
+      localStorage.setItem("last_document", documentId);
     } catch (error) {
-      setError(error);
+      setError(error.message || error);
       console.error("Error uploading file:", error);
-    } finally {
-      setIsUploading(false);
-    }
+      setUploadStatus("idle");
+    } 
   };
 
   return (

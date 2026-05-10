@@ -1,4 +1,6 @@
+from db.qdrant import save_embeddings
 from services.resource_manager import get_model
+import asyncio
 
 def generate_embeddings(chunks):
 	chunks_text = [chunk['content'] for chunk in chunks]
@@ -15,3 +17,11 @@ def embed_question(question):
 	bge_query = "Represent this sentence for searching relevant passages: " + question
 	embedding = model.encode([bge_query])
 	return embedding
+
+async def process_embeddings_background(chunks, document_id):
+    try:
+        embeddings = await asyncio.to_thread(generate_embeddings, chunks)
+        await save_embeddings(embeddings, chunks, document_id)
+        print(f"Background embedding complete for {document_id}")
+    except Exception as e:
+        print(f"Background embedding failed: {e}")
