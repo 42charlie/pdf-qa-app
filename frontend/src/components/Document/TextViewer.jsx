@@ -29,8 +29,9 @@ function TextViewer({ metadata, setChunkInfo }) {
 				setText(data.text);
 				setChunks(data.chunks);
 			} catch (error) {
-				setError(error);
-				console.error("Error getting preview:", error);
+				let errorMessage = formatErrorMessage(errorMessage);
+				setError(errorMessage);
+				console.error("Error getting preview:", errorMessage);
 			} finally {
 				setIsLoading(false);
 			}

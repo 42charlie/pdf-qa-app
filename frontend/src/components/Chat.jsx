@@ -2,6 +2,7 @@ import { IoSend } from "react-icons/io5";
 import { useState, useRef, useEffect } from "react";
 import UserMessage from "./Chat/UserMessage";
 import SystemMessage from "./Chat/SystemMessage";
+import { formatErrorMessage } from "../utils/errorUtils";
 
 function Header() {
   return (
@@ -76,18 +77,19 @@ function Chat( { setRetrievedChunks, setActiveTab, setSubTab, metadata } ) {
 			setSubTab('list');
 			setMessages(prevMessages => [...prevMessages, llmResponse]);
 		} catch (error) {
+			let errorMessage = formatErrorMessage(errorMessage);
 			const llmResponse = {
 				id: Date.now(),
 				role: 'system',
 				error: true,
-				content: error.message || "An error occurred while getting the response. Please try again.",
+				content: errorMessage || "An error occurred while getting the response. Please try again.",
 				isgrounded: false,
 				used_chunks: [],
 				citations: []
 			};
 			setMessages(prevMessages => [...prevMessages, llmResponse]);
 			setRetrievedChunks([])
-			console.error("Error getting LLM response:", error);
+			console.error("Error getting LLM response:", errorMessage);
 		} finally {
 			setIsThinking(false);
 		}

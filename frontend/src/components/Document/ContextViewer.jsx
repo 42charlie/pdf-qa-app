@@ -26,8 +26,9 @@ function ContextViewer({ shownChunk, setSubTab, metadata }) {
 				console.log("Fetched chunk context:", data);
 				setChunkContext(data.context);
 			} catch (error) {
-				setError(error);
-				console.error("Error getting chunk context:", error);
+				let errorMessage = formatErrorMessage(errorMessage);
+				setError(errorMessage);
+				console.error("Error getting chunk context:", errorMessage);
 			} finally {
 				setIsLoading(false);
 			}

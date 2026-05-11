@@ -136,8 +136,9 @@ function UploadArea({ setPage, setMetadata }) {
       setMetadata(data.metadata);
       localStorage.setItem("last_document", documentId);
     } catch (error) {
-      setError(error.message || error);
-      console.error("Error uploading file:", error);
+      let errorMessage = formatErrorMessage(errorMessage);
+      setError(errorMessage);
+      console.error("Error uploading file:", errorMessage);
       setUploadStatus("idle");
     } 
   };
@@ -186,6 +187,9 @@ function UploadArea({ setPage, setMetadata }) {
           Max 10MB
         </div>
       </div>
+      <p className="text-xs text-slate-500">
+        * Please don't upload private data
+      </p>
     </div>
   );
 }

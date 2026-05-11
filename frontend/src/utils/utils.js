@@ -56,3 +56,15 @@ export function timeAgo(dateString) {
         return rtf.format(Math.round(diffInSeconds / 31536000), 'year'); // year ago
     }
 }
+
+export function formatErrorMessage(errorMessage) {
+	//Enhances error messages for better user understanding, especially for network-related issues
+	if (errorMessage === "Failed to fetch") {
+		if (!navigator.onLine) {
+		errorMessage = "No internet connection. Please check your network.";
+		} else {
+		errorMessage = "Cannot connect to the server. It might be offline or restarting.";
+		}
+	}
+	return errorMessage;
+}
