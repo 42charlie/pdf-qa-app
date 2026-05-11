@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, BackgroundTasks
+from fastapi import APIRouter, Request, UploadFile, File, BackgroundTasks
 from fastapi.responses import JSONResponse
 
 # Import service functions
@@ -8,6 +8,7 @@ from services.text_extraction import extract_pages_from_pdf, validate_text, clea
 from services.chunker import chunk_text
 from services.embedding import process_embeddings_background
 from db.qdrant import get_chunk_context_by_index, get_document_chunks_by_uuid
+from services.rate_limiter import limiter
 
 #database imports
 from db.postgres import get_document_text, insert_document, get_document_by_uuid, document_exists, update_document_activity
@@ -15,7 +16,8 @@ from db.postgres import get_document_text, insert_document, get_document_by_uuid
 route = APIRouter(prefix="/documents", tags=["Documents"])
 
 @route.post("/upload")
-async def upload(file: UploadFile = File(...), background_tasks: BackgroundTasks = None):
+@limiter.limit("3/minute")
+async def upload(request: Request, file: UploadFile = File(...), background_tasks: BackgroundTasks = None):
 
 	file.filename = sanitize_for_display(file.filename)
 	#Check file type
@@ -60,7 +62,8 @@ async def upload(file: UploadFile = File(...), background_tasks: BackgroundTasks
 	return JSONResponse(content=response)
 
 @route.get("/{uuid}/status")
-async def check_processing_status(uuid: str):
+@limiter.limit("20/minute")
+async def check_processing_status(request: Request, uuid: str):
     """Checks if Qdrant has finished saving the chunks"""
     try:
         chunks = await get_document_chunks_by_uuid(uuid)
@@ -70,7 +73,8 @@ async def check_processing_status(uuid: str):
         return JSONResponse(content={"success": True, "ready": False})
 
 @route.get("/{uuid}")
-async def get_document(uuid: str):
+@limiter.limit("30/minute")
+async def get_document(request: Request, uuid: str):
 	''' Placeholder for fetching document metadata and chunks from the database '''
 	try:
 		await update_document_activity(uuid)
@@ -85,7 +89,8 @@ async def get_document(uuid: str):
 	return JSONResponse(content={"success": True, "document": document})
 
 @route.get("/{uuid}/info")
-async def get_document_info(uuid: str):
+@limiter.limit("30/minute")
+async def get_document_info(request: Request, uuid: str):
 	''' Placeholder for fetching document metadata and chunks from the database '''
 	try:
 		await update_document_activity(uuid)
@@ -100,7 +105,8 @@ async def get_document_info(uuid: str):
 	return JSONResponse(content={"success": True, "metadata": document})
 
 @route.get("/{uuid}/preview")
-async def get_document_chunks(uuid: str):
+@limiter.limit("30/minute")
+async def get_document_chunks(request: Request, uuid: str):
 	''' Placeholder for fetching document chunks from the database '''
 	try:
 		if not await document_exists(uuid):
@@ -115,7 +121,8 @@ async def get_document_chunks(uuid: str):
 	return JSONResponse(content={"success": True, "text": text_preview, "chunks": chunks})
 
 @route.get("/{uuid}/{chunk_index}/context")
-async def get_chunk_context(uuid: str, chunk_index: int):
+@limiter.limit("30/minute")
+async def get_chunk_context(request: Request, uuid: str, chunk_index: int):
 	''' Placeholder for fetching document chunks from the database '''
 	try:
 		if not await document_exists(uuid):
