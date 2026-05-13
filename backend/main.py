@@ -21,7 +21,7 @@ origins = [
 async def lifespan(app: FastAPI):
     # STARTUP
     try:
-        await initialize_database(os.getenv("DATABASE_URL"))
+        await initialize_database(os.getenv("POSTGRES_URI"))
         await init_qdrant()
     except Exception as e:
         print(f"Error initializing database: {e}")

@@ -6,7 +6,7 @@ from config import PREVIEW_LENGTH
 
 # Connect to your local Qdrant Docker container
 qdrant = AsyncQdrantClient(url=os.getenv("QDRANT_URL"))
-COLLECTION_NAME = "1337_documents"
+COLLECTION_NAME = os.getenv("QDRANT_COLLECTION")
 
 async def init_qdrant():
 	"""Call this in your FastAPI lifespan alongside your Postgres init"""

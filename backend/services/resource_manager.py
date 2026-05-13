@@ -10,7 +10,7 @@ from db.postgres import delete_inactive_documents
 def get_llm_client():
 	''' Initialize and cache the Groq client '''
 	print("Initializing Groq client...")
-	return AsyncGroq(api_key=os.getenv("API_KEY"))
+	return AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
 
 @lru_cache(maxsize=1)
 def get_model():
