@@ -3,7 +3,7 @@ from datetime import timedelta
 import asyncpg
 from click import UUID
 from services.storage import human_readable_size
-from config import DB_PATH, PREVIEW_LENGTH
+from config import PREVIEW_LENGTH
 
 # The global connection pool
 pool = None

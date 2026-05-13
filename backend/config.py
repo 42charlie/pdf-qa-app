@@ -13,8 +13,5 @@ BASE_DIR = Path(__file__).resolve().parent
 # Directory to store uploaded files
 UPLOAD_DIR = BASE_DIR / "uploads"
 
-# Database file path
-DB_PATH = BASE_DIR / "database.db"
-
 # Ensure necessary directories exist
 UPLOAD_DIR.mkdir(exist_ok=True)
