@@ -1,13 +1,15 @@
 import json
+
+from fastapi.params import Depends
 from services.prompt import FALLBACK_RESPONSE
 from services.generation import craft_prompt, is_grounded_response, request_llm_response, parse_llm_json, relevant_chunks_to_json
 from services.resource_manager import get_llm_client
 from fastapi import APIRouter, Form, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from db.qdrant import get_relevant_chunks
+from db.qdrant import get_qdrant, get_relevant_chunks
 from services.embedding import embed_question
-from db.postgres import update_document_activity
+from db.postgres import get_pg_pool, update_document_activity
 from services.rate_limiter import limiter
 
 class ChatRequest(BaseModel):
@@ -18,11 +20,11 @@ route = APIRouter(prefix="/chat", tags=["Chat"])
 
 @route.post("/ask")
 @limiter.limit("5/minute")
-async def ask_question(request: Request, body: ChatRequest = Form(...)):
+async def ask_question(request: Request, body: ChatRequest = Form(...), pg_pool = Depends(get_pg_pool), qdrant = Depends(get_qdrant)):
 	question = embed_question(body.question)
 	try:
-		await update_document_activity(body.uuid)
-		chunks, distances = await get_relevant_chunks(question, body.uuid)
+		await update_document_activity(body.uuid, pg_pool)
+		chunks, distances = await get_relevant_chunks(question, body.uuid, qdrant)
 		if not chunks:
 			return JSONResponse(content={"ok": False, "error": "No chunks found.", "data": None, "relevant_chunks": []}, status_code=404)
 		if distances and max(distances) < 0.52:  # Threshold for relevance, based on empirical testing

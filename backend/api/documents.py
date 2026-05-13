@@ -1,5 +1,6 @@
 import asyncio
 from fastapi import APIRouter, Request, UploadFile, File, BackgroundTasks
+from fastapi.params import Depends
 from fastapi.responses import JSONResponse
 
 # Import service functions
@@ -11,14 +12,14 @@ from services.embedding import process_embeddings_background
 from services.rate_limiter import limiter
 
 #database imports
-from db.qdrant import get_chunk_context_by_index, get_document_chunks_by_uuid
-from db.postgres import get_document_by_hash, get_document_text, insert_document, get_document_by_uuid, document_exists, update_document_activity
+from db.qdrant import get_chunk_context_by_index, get_document_chunks_by_uuid, get_qdrant
+from db.postgres import get_document_by_hash, get_document_text, get_pg_pool, insert_document, get_document_by_uuid, document_exists, update_document_activity
 
 route = APIRouter(prefix="/documents", tags=["Documents"])
 
 @route.post("/upload")
 @limiter.limit("3/minute")
-async def upload(request: Request, file: UploadFile = File(...), background_tasks: BackgroundTasks = None):
+async def upload(request: Request, file: UploadFile = File(...), background_tasks: BackgroundTasks = None, pg_pool = Depends(get_pg_pool), qdrant = Depends(get_qdrant)):
 
 	file.filename = sanitize_for_display(file.filename)
 	#Check file type
@@ -33,7 +34,7 @@ async def upload(request: Request, file: UploadFile = File(...), background_task
 	#Calculate file hash and check for duplicates
 	file_hash = await calculate_file_hash(content)
 	try :
-		existing_doc = await get_document_by_hash(file_hash)
+		existing_doc = await get_document_by_hash(file_hash, pg_pool)
 		if existing_doc:
 			return JSONResponse(content={"success": True, "metadata": existing_doc}, status_code=200)
 	except Exception as e:
@@ -51,13 +52,13 @@ async def upload(request: Request, file: UploadFile = File(...), background_task
 
 	#store document metadata and chunks in the database
 	try:
-		await insert_document(document_id, file.filename, validated_text, len(chunks), pages[-1]['page'], file_hash)
+		await insert_document(document_id, file.filename, validated_text, len(chunks), pages[-1]['page'], file_hash, pg_pool)
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "error": "Database error, Please try again."}, status_code=500)
 
 	#embed chunks and store embeddings in the vector database
-	background_tasks.add_task(process_embeddings_background, chunks, document_id)
+	background_tasks.add_task(process_embeddings_background, chunks, document_id, qdrant)
 
 	response = {
 		"success": True,
@@ -75,10 +76,10 @@ async def upload(request: Request, file: UploadFile = File(...), background_task
 
 @route.get("/{uuid}/status")
 @limiter.limit("20/minute")
-async def check_processing_status(request: Request, uuid: str):
+async def check_processing_status(request: Request, uuid: str, pg_pool = Depends(get_pg_pool), qdrant = Depends(get_qdrant)):
     """Checks if Qdrant has finished saving the chunks"""
     try:
-        chunks = await get_document_chunks_by_uuid(uuid)
+        chunks = await get_document_chunks_by_uuid(uuid, qdrant)
         is_ready = len(chunks) > 0
         return JSONResponse(content={"success": True, "ready": is_ready})
     except Exception:
@@ -86,11 +87,11 @@ async def check_processing_status(request: Request, uuid: str):
 
 @route.get("/{uuid}")
 @limiter.limit("30/minute")
-async def get_document(request: Request, uuid: str):
+async def get_document(request: Request, uuid: str, pg_pool = Depends(get_pg_pool)):
 	''' Placeholder for fetching document metadata and chunks from the database '''
 	try:
-		await update_document_activity(uuid)
-		document = await get_document_by_uuid(uuid)
+		await update_document_activity(uuid, pg_pool)
+		document = await get_document_by_uuid(uuid, pg_pool)
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "message": "Database error"}, status_code=500)
@@ -102,11 +103,11 @@ async def get_document(request: Request, uuid: str):
 
 @route.get("/{uuid}/info")
 @limiter.limit("30/minute")
-async def get_document_info(request: Request, uuid: str):
+async def get_document_info(request: Request, uuid: str, pg_pool = Depends(get_pg_pool)):
 	''' Placeholder for fetching document metadata and chunks from the database '''
 	try:
-		await update_document_activity(uuid)
-		document = await get_document_by_uuid(uuid)  # Implement this function to fetch document metadata
+		await update_document_activity(uuid, pg_pool)
+		document = await get_document_by_uuid(uuid, pg_pool)  # Implement this function to fetch document metadata
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "error": "Database error"}, status_code=500)
@@ -118,14 +119,14 @@ async def get_document_info(request: Request, uuid: str):
 
 @route.get("/{uuid}/preview")
 @limiter.limit("30/minute")
-async def get_document_chunks(request: Request, uuid: str):
+async def get_document_chunks(request: Request, uuid: str, pg_pool = Depends(get_pg_pool), qdrant = Depends(get_qdrant)):
 	''' Placeholder for fetching document chunks from the database '''
 	try:
-		if not await document_exists(uuid):
+		if not await document_exists(uuid, pg_pool):
 			return JSONResponse(content={"success": False, "error": "Document not found. Please try again."}, status_code=404)
-		await update_document_activity(uuid)
-		chunks = await get_document_chunks_by_uuid(uuid)
-		text_preview = await get_document_text(uuid)
+		await update_document_activity(uuid, pg_pool)
+		chunks = await get_document_chunks_by_uuid(uuid, qdrant)
+		text_preview = await get_document_text(uuid, pg_pool)
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "error": "Database error. Please try again."}, status_code=500)
@@ -134,16 +135,16 @@ async def get_document_chunks(request: Request, uuid: str):
 
 @route.get("/{uuid}/{chunk_index}/context")
 @limiter.limit("30/minute")
-async def get_chunk_context(request: Request, uuid: str, chunk_index: int):
+async def get_chunk_context(request: Request, uuid: str, chunk_index: int, pg_pool = Depends(get_pg_pool), qdrant = Depends(get_qdrant)):
 	''' Placeholder for fetching document chunks from the database '''
 	try:
-		if not await document_exists(uuid):
+		if not await document_exists(uuid, pg_pool):
 			return JSONResponse(content={"success": False, "error": "Document not found. Please try again."}, status_code=404)
-		await update_document_activity(uuid)
-		index_pool = await get_chunk_context_by_index(uuid, chunk_index)
+		await update_document_activity(uuid, pg_pool)
+		index_pool = await get_chunk_context_by_index(uuid, chunk_index, qdrant)
 		if not index_pool:
 			return JSONResponse(content={"success": False, "error": "Chunk context not found. Please try again."}, status_code=404)
-		context = await get_document_text(uuid, min(index_pool), max(index_pool) - min(index_pool))
+		context = await get_document_text(uuid, min(index_pool), max(index_pool) - min(index_pool), pg_pool)
 		if not context:
 			return JSONResponse(content={"success": False, "error": "Chunk context not found. Please try again."}, status_code=404)
 	except Exception as e:
