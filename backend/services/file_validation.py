@@ -11,16 +11,16 @@ def validate_extension(file: UploadFile):
 		print("[!] validate_extension")
 		return False
 	return True
-def validate_magic_bytes(file: UploadFile):
-	magic_bytes = file.file.read(5)
-	file.file.seek(0)  # Reset file pointer after reading
+async def validate_magic_bytes(file: UploadFile):
+	magic_bytes = await file.read(5)
+	await file.seek(0)  # Reset file pointer after reading
 	if magic_bytes != b"%PDF-" or len(magic_bytes) < 5:
 		print("[!] validate_magic_bytes")
 		return False
 	return True
 
 '''validate the uploaded file'''
-def validate_document(file: UploadFile):
+async def validate_document(file: UploadFile):
 	if file.file is None:
 		print("[!] file is None")
 		return False
@@ -28,7 +28,7 @@ def validate_document(file: UploadFile):
 		return False
 	if not validate_extension(file):
 		return False
-	if not validate_magic_bytes(file):
+	if not await validate_magic_bytes(file):
 		return False
 	return True
 

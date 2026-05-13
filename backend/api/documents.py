@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, Request, UploadFile, File, BackgroundTasks
 from fastapi.responses import JSONResponse
 
@@ -7,10 +8,10 @@ from services.storage import check_file_size, human_readable_size, save_file
 from services.text_extraction import extract_pages_from_pdf, validate_text, clean_txt
 from services.chunker import chunk_text
 from services.embedding import process_embeddings_background
-from db.qdrant import get_chunk_context_by_index, get_document_chunks_by_uuid
 from services.rate_limiter import limiter
 
 #database imports
+from db.qdrant import get_chunk_context_by_index, get_document_chunks_by_uuid
 from db.postgres import get_document_text, insert_document, get_document_by_uuid, document_exists, update_document_activity
 
 route = APIRouter(prefix="/documents", tags=["Documents"])
@@ -21,17 +22,17 @@ async def upload(request: Request, file: UploadFile = File(...), background_task
 
 	file.filename = sanitize_for_display(file.filename)
 	#Check file type
-	if not file or not validate_document(file):
+	if not file or not await validate_document(file):
 		return JSONResponse(content={"success": False, "error": "Invalid or unsupported file"}, status_code=400)
 	
 	#save file to the uploads directory
-	content_size, content = check_file_size(file.file)
+	content_size, content = await check_file_size(file)
 	if not content:
 		return JSONResponse(content={"success": False, "error": "File size exceeds the limit of 10MB."}, status_code=400)
-	document_id = save_file(content)
+	document_id = await save_file(content)
 
 	#extract text from the PDF (placeholder for actual extraction logic)
-	pages = extract_pages_from_pdf(document_id)
+	pages = await asyncio.to_thread(extract_pages_from_pdf, document_id)
 	clean_text = clean_txt(pages)
 	validated_text = validate_text(clean_text)
 
