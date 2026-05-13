@@ -77,7 +77,7 @@ function Chat( { setRetrievedChunks, setActiveTab, setSubTab, metadata } ) {
 			setSubTab('list');
 			setMessages(prevMessages => [...prevMessages, llmResponse]);
 		} catch (error) {
-			let errorMessage = formatErrorMessage(errorMessage);
+			let errorMessage = formatErrorMessage(String(error));
 			const llmResponse = {
 				id: Date.now(),
 				role: 'system',

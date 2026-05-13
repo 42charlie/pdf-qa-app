@@ -136,7 +136,7 @@ function UploadArea({ setPage, setMetadata }) {
       setMetadata(data.metadata);
       localStorage.setItem("last_document", documentId);
     } catch (error) {
-      let errorMessage = formatErrorMessage(errorMessage);
+      let errorMessage = formatErrorMessage(String(error));
       setError(errorMessage);
       console.error("Error uploading file:", errorMessage);
       setUploadStatus("idle");
