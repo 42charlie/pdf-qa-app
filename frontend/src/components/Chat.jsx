@@ -2,7 +2,7 @@ import { IoSend } from "react-icons/io5";
 import { useState, useRef, useEffect } from "react";
 import UserMessage from "./Chat/UserMessage";
 import SystemMessage from "./Chat/SystemMessage";
-import { formatErrorMessage } from "../utils/errorUtils";
+import { formatErrorMessage } from "../utils/utils";
 
 function Header() {
   return (
