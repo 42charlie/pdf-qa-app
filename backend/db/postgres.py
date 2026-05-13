@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS documents (
     original_filename TEXT NOT NULL,
     full_text TEXT NOT NULL,
     text_length INTEGER NOT NULL,
+    file_hash TEXT UNIQUE NOT NULL,
     chunks_count INTEGER NOT NULL,
     pages_count INTEGER NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -35,14 +36,14 @@ async def close_database():
     if pool:
         await pool.close()
 
-async def insert_document(document_id, original_filename, full_text, chunks_count, pages_count):
+async def insert_document(document_id, original_filename, full_text, chunks_count, pages_count, file_hash):
     ''' Insert a new document into the database and return its ID '''
     query = '''
-        INSERT INTO documents (id, original_filename, full_text, text_length, chunks_count, pages_count)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO documents (id, original_filename, full_text, text_length, chunks_count, pages_count, file_hash)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
     '''
     async with pool.acquire() as conn:
-        await conn.execute(query, document_id, original_filename, full_text, len(full_text), chunks_count, pages_count)
+        await conn.execute(query, document_id, original_filename, full_text, len(full_text), chunks_count, pages_count, file_hash)
         return document_id
 
 async def get_document_by_uuid(document_id):
@@ -84,7 +85,7 @@ async def delete_inactive_documents(inactivity_threshold_hours=48):
     ''' Delete documents that haven't been accessed within the specified inactivity threshold '''
     async with pool.acquire() as conn:
         # Pass a standard Python timedelta, and asyncpg translates it to a Postgres INTERVAL
-        threshold = timedelta(hours=inactivity_threshold_hours)
+        threshold = timedelta(seconds=inactivity_threshold_hours)
         query = '''
             DELETE FROM documents
             WHERE last_activity_at < CURRENT_TIMESTAMP - $1::interval
@@ -93,3 +94,19 @@ async def delete_inactive_documents(inactivity_threshold_hours=48):
         records = await conn.fetch(query, threshold)
 
         return [record['id'] for record in records]
+    
+async def get_document_by_hash(file_hash):
+    ''' Retrieve document metadata by its file hash '''
+    async with pool.acquire() as conn:
+        query = 'SELECT id, original_filename, chunks_count, pages_count, text_length, created_at FROM documents WHERE file_hash = $1'
+        row = await conn.fetchrow(query, file_hash)
+        if row:
+            return {
+                "id": row['id'],
+                "filename": row['original_filename'],
+                "chunk_count": row['chunks_count'],
+                "pages": row['pages_count'],
+                "character_count": row['text_length'],
+                "size": human_readable_size(row['text_length']),
+            }
+        return None

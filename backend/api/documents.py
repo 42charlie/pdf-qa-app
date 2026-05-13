@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 
 # Import service functions
 from services.file_validation import sanitize_for_display, validate_document
-from services.storage import check_file_size, human_readable_size, save_file
+from services.storage import calculate_file_hash, check_file_size, human_readable_size, save_file
 from services.text_extraction import extract_pages_from_pdf, validate_text, clean_txt
 from services.chunker import chunk_text
 from services.embedding import process_embeddings_background
@@ -12,7 +12,7 @@ from services.rate_limiter import limiter
 
 #database imports
 from db.qdrant import get_chunk_context_by_index, get_document_chunks_by_uuid
-from db.postgres import get_document_text, insert_document, get_document_by_uuid, document_exists, update_document_activity
+from db.postgres import get_document_by_hash, get_document_text, insert_document, get_document_by_uuid, document_exists, update_document_activity
 
 route = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -29,6 +29,17 @@ async def upload(request: Request, file: UploadFile = File(...), background_task
 	content_size, content = await check_file_size(file)
 	if not content:
 		return JSONResponse(content={"success": False, "error": "File size exceeds the limit of 10MB."}, status_code=400)
+	
+	#Calculate file hash and check for duplicates
+	file_hash = await calculate_file_hash(content)
+	try :
+		existing_doc = await get_document_by_hash(file_hash)
+		if existing_doc:
+			return JSONResponse(content={"success": True, "metadata": existing_doc}, status_code=200)
+	except Exception as e:
+		print(f"Database error: {e}")
+		return JSONResponse(content={"success": False, "error": "Database error, Please try again."}, status_code=500)
+	
 	document_id = await save_file(content)
 
 	#extract text from the PDF (placeholder for actual extraction logic)
@@ -40,7 +51,7 @@ async def upload(request: Request, file: UploadFile = File(...), background_task
 
 	#store document metadata and chunks in the database
 	try:
-		await insert_document(document_id, file.filename, validated_text, len(chunks), pages[-1]['page'])
+		await insert_document(document_id, file.filename, validated_text, len(chunks), pages[-1]['page'], file_hash)
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "error": "Database error, Please try again."}, status_code=500)
@@ -79,7 +90,7 @@ async def get_document(request: Request, uuid: str):
 	''' Placeholder for fetching document metadata and chunks from the database '''
 	try:
 		await update_document_activity(uuid)
-		document = await get_document_by_uuid(uuid)  # Implement this function to fetch document metadata
+		document = await get_document_by_uuid(uuid)
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "message": "Database error"}, status_code=500)

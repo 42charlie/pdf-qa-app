@@ -23,7 +23,9 @@ async def ask_question(request: Request, body: ChatRequest = Form(...)):
 	try:
 		await update_document_activity(body.uuid)
 		chunks, distances = await get_relevant_chunks(question, body.uuid)
-		if max(distances) < 0.52:  # Threshold for relevance, based on empirical testing
+		if not chunks:
+			return JSONResponse(content={"ok": False, "error": "No chunks found.", "data": None, "relevant_chunks": []}, status_code=404)
+		if distances and max(distances) < 0.52:  # Threshold for relevance, based on empirical testing
 			return JSONResponse(content={"ok": True, "error": None, "data": json.loads(FALLBACK_RESPONSE), "relevant_chunks": []}, status_code=200)
 	except Exception as e:
 		print(f"Error retrieving chunks: {e}")

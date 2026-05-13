@@ -1,5 +1,7 @@
 from anyio import open_file
 from config import UPLOAD_DIR
+import hashlib
+import asyncio
 import uuid
 
 def human_readable_size(size):
@@ -26,3 +28,7 @@ async def check_file_size(file) -> bytes:
 			await file.close()  # Close the file to free resources
 			return None
 	return len(content), bytes(content)
+
+async def calculate_file_hash(content: bytes) -> str:
+    """Calculate the SHA-256 hash of the file content asynchronously."""
+    return await asyncio.to_thread(lambda: hashlib.sha256(content).hexdigest())
