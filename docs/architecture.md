@@ -1,126 +1,39 @@
-# Architecture
+# 🏗️ Technical Architecture: Mini RAG Pipeline
 
-## Overview
+This document provides a deep dive into the internal mechanics of the system. Unlike the root README, this focuses on how data flows through the modular services.
 
-This project is a minimal RAG pipeline for PDF Q&A.
+## 🗺️ System Flow Diagram
 
-The goal is to understand the full flow of a document-based AI system, from file upload to answer generation, while keeping the architecture simple and modular.
+The following diagram illustrates the Fully Asynchronous lifecycle of a document, from initial upload to question answering.
 
----
+![](./system_flow_diagram.svg)
 
-## Pipeline
 
-Upload → Validate → Store → Extract → Clean → Chunk → Embed → Retrieve → Generate
+## ⚙️ Core Component Breakdown
 
----
+### 1. The Database Split
 
-## Flow
+To optimize performance, we utilize two specialized data layers:
 
-### 1. Upload
+- **PostgreSQL (via asyncpg):** Manages "State." This includes document metadata (filenames, page counts, character counts) and timestamps for cleanup.
+- **Qdrant:** Manages "Memory." This stores the 384-dimensional vectors and text payloads.
 
-The user uploads a PDF through the backend API.
+### 2. Processing Strategy
 
-### 2. Validate
+- **Memory Efficiency:** Large file operations are handled via chunked reading to prevent RAM spikes.
+- **Event Loop Protection:** CPU-intensive tasks like text extraction and embedding generation are offloaded to worker threads using `asyncio.to_thread` to ensure the server remains responsive to other users.
+- **Cleanup Janitor:** An asynchronous background task runs hourly to delete documents that haven't seen activity within 48 hours.
 
-The file is checked using:
+### 3. Security & Integrity
 
-- MIME type
-- extension
-- magic bytes
-- size limits
+- **Prompt Injection Armor:** We use `<untrusted_context>` tags and strict system instructions to prevent the LLM from following commands hidden inside user documents.
+- **Groundedness Check:** The system verifies if the LLM's response actually used the provided chunk IDs before displaying it to the user.
 
-Only valid PDFs are accepted.
+## 🛠️ Tech Stack Recap
 
-### 3. Store
-
-The uploaded file is stored safely using a UUID-based filename.
-
-### 4. Extract
-
-Text is extracted from the PDF using PyMuPDF.
-
-### 5. Clean
-
-The extracted text is normalized before further processing:
-
-- fix ligatures
-- fix broken hyphenation
-- remove obvious noise lines
-- normalize whitespace
-
-### 6. Chunk
-
-The cleaned text is split into smaller pieces for retrieval.
-
-### 7. Embed
-
-Each chunk is converted into an embedding vector.
-
-### 8. Retrieve
-
-When the user asks a question:
-
-- the question is embedded
-- similar chunks are searched in FAISS
-- top relevant chunks are returned
-
-### 9. Generate
-
-The retrieved chunks are added to a prompt, and the LLM generates the final answer.
-
----
-
-## Main Components
-
-### Backend
-
-Handles:
-
-- upload endpoint
-- validation
-- extraction
-- cleaning
-- chunking
-- retrieval
-- answer generation
-
-### SQLite
-
-Stores:
-
-- document metadata
-- extracted text
-- chunk metadata
-
-SQLite is the source of truth.
-
-### FAISS
-
-Stores embedding vectors for similarity search.
-
-FAISS is used only for retrieval, not as the main database.
-
-### Frontend
-
-A minimal interface for:
-
-- uploading PDFs
-- asking questions
-- viewing answers and sources
-
----
-
-## Current Direction
-
-The project is being built step by step:
-
-1. file handling
-2. text extraction
-3. cleaning
-4. chunking
-5. embeddings
-6. retrieval
-7. generation
-8. UI visualization
-
-Each stage is completed before moving to the next.
+- **Framework:** FastAPI (Fully Asynchronous)
+- **Vector DB:** Qdrant
+- **Relational DB:** PostgreSQL
+- **Extraction:** PyMuPDF
+- **LLM:** Groq (Llama-3.1-8b-instant)
+- **Embeddings:** BGE-Small (Sentence-Transformers)
