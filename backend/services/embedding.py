@@ -18,10 +18,10 @@ def embed_question(question):
 	embedding = model.encode([bge_query])
 	return embedding
 
-async def process_embeddings_background(chunks, document_id):
+async def process_embeddings_background(chunks, document_id, qdrant):
     try:
         embeddings = await asyncio.to_thread(generate_embeddings, chunks)
-        await save_embeddings(embeddings, chunks, document_id)
+        await save_embeddings(embeddings, chunks, document_id, qdrant)
         print(f"Background embedding complete for {document_id}")
     except Exception as e:
         print(f"Background embedding failed: {e}")

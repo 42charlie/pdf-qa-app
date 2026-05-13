@@ -1,11 +1,12 @@
 import asyncio
 import os
+import asyncpg
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+
+from qdrant_client import AsyncQdrantClient
 from api import chat, documents
-from db.qdrant import init_qdrant
-from db.postgres import close_database, initialize_database
 from services.resource_manager import clean_inactive_documents
 from fastapi.middleware.cors import CORSMiddleware
 from services.rate_limiter import limiter, custom_rate_limit_handler
@@ -19,23 +20,24 @@ origins = [
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # STARTUP
-    try:
-        await initialize_database(os.getenv("POSTGRES_URI"))
-        await init_qdrant()
-    except Exception as e:
-        print(f"Error initializing database: {e}")
-        raise
+    print("Connecting to databases...")
+    
+    # Initialize PostgreSQL Connection Pool
+    app.state.pg_pool = await asyncpg.create_pool(os.getenv("POSTGRES_URI"))
+    
+    # Initialize Qdrant Client
+    app.state.qdrant = AsyncQdrantClient(
+        url=os.getenv("QDRANT_URL"),
+        api_key=os.getenv("QDRANT_API_KEY")
+    )
 
-    asyncio.create_task(clean_inactive_documents())
+    asyncio.create_task(clean_inactive_documents(app.state.pg_pool, app.state.qdrant))
 
     yield
 
-    # SHUTDOWN
-    try:
-        await close_database()
-    except Exception as e:
-        print(f"Error closing database: {e}")
+    print("Closing database connections...")
+    await app.state.pg_pool.close()
+    await app.state.qdrant.close()
 
 app = FastAPI(lifespan=lifespan)
 # Attach the limiter to the app and set up the custom rate limit handler

@@ -18,15 +18,15 @@ def get_model():
 	print("Loading model...")
 	return SentenceTransformer('BAAI/bge-small-en-v1.5')
 
-async def clean_inactive_documents():
+async def clean_inactive_documents(pg_pool, qdrant):
 	''' clean up documents that haven't been accessed in a while '''
 	while True:
 		await asyncio.sleep(3600)  # Run cleanup every hour
 		print("Running cleanup of inactive documents...")
 		try:
-			ids = await delete_inactive_documents()
+			ids = await delete_inactive_documents(pg_pool)
 			for doc_id in ids:
-				await delete_document_chunks(doc_id)
+				await delete_document_chunks(doc_id, qdrant)
 			print(f"Deleted {len(ids)} inactive documents and their chunks.")
 		except Exception as e:
 			print(f"Error during cleanup: {e}")

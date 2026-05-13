@@ -1,23 +1,17 @@
 import os
 import uuid
-from qdrant_client import AsyncQdrantClient
-from qdrant_client.models import Distance, Range, VectorParams, PointStruct, Filter, FieldCondition, MatchValue
+from fastapi import Request
+from qdrant_client.models import Range, PointStruct, Filter, FieldCondition, MatchValue
 from config import PREVIEW_LENGTH
 
-# Connect to your local Qdrant Docker container
-qdrant = AsyncQdrantClient(url=os.getenv("QDRANT_URL"))
 COLLECTION_NAME = os.getenv("QDRANT_COLLECTION")
 
-async def init_qdrant():
-	"""Call this in your FastAPI lifespan alongside your Postgres init"""
-	if not await qdrant.collection_exists(COLLECTION_NAME):
-		await qdrant.create_collection(
-			collection_name=COLLECTION_NAME,
-			vectors_config=VectorParams(size=384, distance=Distance.COSINE),
-		)
+async def get_qdrant(request: Request):
+    return request.app.state.qdrant
 
-async def save_embeddings(embeddings, chunks, document_id):
+async def save_embeddings(embeddings, chunks, document_id, qdrant):
 	"""Saves both the vector AND the text payload into Qdrant"""
+
 	points = []
 	
 	#loop through the text chunks and their matching vectors
@@ -42,7 +36,7 @@ async def save_embeddings(embeddings, chunks, document_id):
 		points=points
 	)
 
-async def get_relevant_chunks(question_embedding, document_id, top_k=3):
+async def get_relevant_chunks(question_embedding, document_id, qdrant, top_k=3):
 	"""Searches Qdrant and filters ONLY for the active document"""
 	
 	search_results = await qdrant.query_points(
@@ -65,7 +59,7 @@ async def get_relevant_chunks(question_embedding, document_id, top_k=3):
 	
 	return retrieved_chunks, scores
 
-async def get_chunk_context_by_index(document_id: str, target_index: int):
+async def get_chunk_context_by_index(document_id, target_index, qdrant):
 	"""Fetches ONLY the start and end characters for a chunk and its neighbors"""
 	
 	records, _ = await qdrant.scroll(
@@ -98,7 +92,7 @@ async def get_chunk_context_by_index(document_id: str, target_index: int):
 		for index in (record.payload['start_char'], record.payload['end_char'])
 	]
 
-async def get_document_chunks_by_uuid(document_id: str):
+async def get_document_chunks_by_uuid(document_id, qdrant):
 	"""Fetches clean, contiguous preview chunks with exactly the keys needed"""
 	
 	records, _ = await qdrant.scroll(
@@ -131,7 +125,7 @@ async def get_document_chunks_by_uuid(document_id: str):
 		for record in records
 	]
 
-async def delete_document_chunks(document_id: str):
+async def delete_document_chunks(document_id, qdrant):
 	"""Deletes all chunks and vectors belonging to a specific document"""
 
 	await qdrant.delete(
