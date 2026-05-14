@@ -68,7 +68,7 @@ async def delete_inactive_documents(pg_pool, inactivity_threshold_hours=48):
     ''' Delete documents that haven't been accessed within the specified inactivity threshold '''
     async with pg_pool.acquire() as conn:
         # Pass a standard Python timedelta, and asyncpg translates it to a Postgres INTERVAL
-        threshold = timedelta(seconds=inactivity_threshold_hours)
+        threshold = timedelta(hours=inactivity_threshold_hours)
         query = '''
             DELETE FROM documents
             WHERE last_activity_at < CURRENT_TIMESTAMP - $1::interval
