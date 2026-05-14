@@ -92,7 +92,7 @@ async def get_chunk_context_by_index(document_id, target_index, qdrant):
 		for index in (record.payload['start_char'], record.payload['end_char'])
 	]
 
-async def get_document_chunks_by_uuid(document_id, qdrant):
+async def get_document_chunks_by_uuid(document_id, qdrant, limit=30):
 	"""Fetches clean, contiguous preview chunks with exactly the keys needed"""
 	
 	records, _ = await qdrant.scroll(
@@ -109,7 +109,7 @@ async def get_document_chunks_by_uuid(document_id, qdrant):
 				)
 			]
 		),
-		limit=30,
+		limit=limit,
 		with_payload=["chunk_index", "start_char", "end_char"],
 		with_vectors=False
 	)

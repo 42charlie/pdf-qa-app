@@ -36,8 +36,8 @@ def sanitize_for_display(filename: str) -> str:
     # Remove any characters that are not letters, numbers, spaces, or common punctuation
     clean_name = re.sub(r'[^\w \-_.\(\)]', '', filename)
 
-    #if it's longer than 30 chars keep the first 20 chars and the last 10
-    if len(clean_name) > 30:
-        clean_name = clean_name[:20] + "..." + clean_name[-10:]
+    #if it's longer than 50 chars keep the first 20 chars and the last 10
+    if len(clean_name) > 50:
+        clean_name = clean_name[:40] + "..." + clean_name[-10:]
         
     return clean_name.strip() or "Untitled Document.pdf"
