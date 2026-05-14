@@ -2,7 +2,7 @@ import { FiInfo } from "react-icons/fi";
 
 function Footer({ chunkInfo }) {
 	return (
-		<div className="w-full h-8 bg-slate-50 flex px-5 py-3 justify-between border-b border-slate-200">
+		<div className="hidden md:flex w-full h-8 bg-slate-50 px-5 py-3 justify-between border-b border-slate-200">
 				{ chunkInfo ? (
 					<>
 					<div className="flex items-center">

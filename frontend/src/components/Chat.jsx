@@ -101,7 +101,7 @@ function Chat( { setRetrievedChunks, setActiveTab, setSubTab, metadata } ) {
 	}, [messages, isThinking]);
 
   return (
-	<div className="flex flex-col w-2/5 bg-slate-50 overflow-hidden">
+	<div className="flex flex-col w-full md:w-2/5 flex-1 bg-slate-50 overflow-hidden">
 		<Header />
 		<div className="flex flex-col flex-1 gap-6 w-full bg-slate-50 px-5 py-3 border-b border-slate-200 overflow-y-auto">
 			{messages.map((msg) => (
