@@ -27,9 +27,9 @@ function Header( { setActiveTab, activeTab, setPage, metadata	} ) {
 	return (
 		<>
 		<div className="w-full h-10 bg-slate-50 flex px-5 py-3 justify-between border-b border-slate-200">
-			<div className="flex items-center gap-3">
-				<span className="text-xs font-semibold text-slate-800 max-w-[40ch] truncate">{metadata.filename}</span>
-				<span className="text-[10px] font-mono text-slate-500">{metadata.size} • {metadata.pages} Pages • {metadata.chunk_count} Chunks • {metadata.character_count} Character</span>
+			<div className="flex items-center gap-2">
+				<span className="text-xs font-semibold text-slate-800 max-w-[25ch] sm:max-w-[20ch] md:max-w-[40ch] truncate">{metadata.filename}</span>
+				<span className="text-[10px] font-mono text-slate-500 shrink-0">{metadata.size} • {metadata.chunk_count} Chunks</span>
 			</div>
 			<div className="flex items-center">
 				<button className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 cursor-pointer" onClick={() => replaceHandler()}>

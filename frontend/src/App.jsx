@@ -12,7 +12,7 @@ function App() {
 	const [metadata, setMetadata] = useState(null);
 
 	return (
-		<div className="bg-white h-screen flex overflow-hidden">
+		<div className="bg-white h-[100dvh] flex flex-col md:flex-row overflow-hidden">
 			<Banner />
 			{ page === "document" ? (
 				<>
@@ -20,7 +20,6 @@ function App() {
 				<Chat setRetrievedChunks={setRetrievedChunks} setActiveTab={setActiveTab} setSubTab={setSubTab} metadata={metadata}/>
 				</>
 			) : <Upload setPage={setPage} setMetadata={setMetadata} setRetrievedChunks={setRetrievedChunks}/> }
-
 		</div>
 	);
 }
