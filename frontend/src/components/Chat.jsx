@@ -61,7 +61,6 @@ function Chat( { setRetrievedChunks, setActiveTab, setSubTab, metadata } ) {
 			}
 
 			const data = await response.json();
-			console.log("LLM Response:", data);
 			const llmResponse = {
 				id: Date.now(),
 				role: 'system',
@@ -71,7 +70,6 @@ function Chat( { setRetrievedChunks, setActiveTab, setSubTab, metadata } ) {
 				used_chunks: data.data.used_chunk_ids,
 				citations: data.retrieved_chunks || []
 			};
-			console.log("citations:", llmResponse.citations);
 			setRetrievedChunks(llmResponse.citations)
 			setActiveTab('retrieved');
 			setSubTab('list');

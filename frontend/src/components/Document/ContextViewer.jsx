@@ -23,7 +23,6 @@ function ContextViewer({ shownChunk, setSubTab, metadata }) {
 				}
 
 				const data = await response.json();
-				console.log("Fetched chunk context:", data);
 				setChunkContext(data.context);
 			} catch (error) {
 				let errorMessage = formatErrorMessage(String(error));
