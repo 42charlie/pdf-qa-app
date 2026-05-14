@@ -36,7 +36,9 @@ async def upload(request: Request, file: UploadFile = File(...), background_task
 	try :
 		existing_doc = await get_document_by_hash(file_hash, pg_pool)
 		if existing_doc:
-			return JSONResponse(content={"success": True, "metadata": existing_doc}, status_code=200)
+			chunks = await get_document_chunks_by_uuid(existing_doc.get("id"), qdrant, limit=1)
+			if len(chunks) > 0:
+				return JSONResponse(content={"success": True, "metadata": existing_doc}, status_code=200)
 	except Exception as e:
 		print(f"Database error: {e}")
 		return JSONResponse(content={"success": False, "error": "Database error, Please try again."}, status_code=500)
@@ -58,6 +60,7 @@ async def upload(request: Request, file: UploadFile = File(...), background_task
 		return JSONResponse(content={"success": False, "error": "Database error, Please try again."}, status_code=500)
 
 	#embed chunks and store embeddings in the vector database
+	print(f"Scheduling background embedding for {document_id}...", flush=True)
 	background_tasks.add_task(process_embeddings_background, chunks, document_id, qdrant)
 
 	response = {
@@ -76,13 +79,14 @@ async def upload(request: Request, file: UploadFile = File(...), background_task
 
 @route.get("/{uuid}/status")
 @limiter.limit("20/minute")
-async def check_processing_status(request: Request, uuid: str, pg_pool = Depends(get_pg_pool), qdrant = Depends(get_qdrant)):
+async def check_processing_status(request: Request, uuid: str, qdrant = Depends(get_qdrant)):
     """Checks if Qdrant has finished saving the chunks"""
     try:
-        chunks = await get_document_chunks_by_uuid(uuid, qdrant)
+        chunks = await get_document_chunks_by_uuid(uuid, qdrant, limit=1)  # Fetch just one chunk to check if embedding is done
         is_ready = len(chunks) > 0
         return JSONResponse(content={"success": True, "ready": is_ready})
-    except Exception:
+    except Exception as e:
+        print(str(e))
         return JSONResponse(content={"success": True, "ready": False})
 
 @route.get("/{uuid}")
@@ -144,7 +148,7 @@ async def get_chunk_context(request: Request, uuid: str, chunk_index: int, pg_po
 		index_pool = await get_chunk_context_by_index(uuid, chunk_index, qdrant)
 		if not index_pool:
 			return JSONResponse(content={"success": False, "error": "Chunk context not found. Please try again."}, status_code=404)
-		context = await get_document_text(uuid, min(index_pool), max(index_pool) - min(index_pool), pg_pool)
+		context = await get_document_text(uuid, pg_pool, min(index_pool), max(index_pool) - min(index_pool))
 		if not context:
 			return JSONResponse(content={"success": False, "error": "Chunk context not found. Please try again."}, status_code=404)
 	except Exception as e:
