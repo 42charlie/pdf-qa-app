@@ -39,7 +39,7 @@ function UploadArea({ setPage, setMetadata }) {
     iconColors = "bg-indigo-50 text-indigo-500";
     boxStyles = "border-indigo-300 bg-indigo-50/30 pointer-events-none";
     message = "Building AI Memory...";
-    subMessage = "Generating embeddings (takes ~15s)";
+    subMessage = "Generating embeddings (May take up to ~10s)";
   } else if (isDragging) {
     icon = <IoCloudUploadOutline className="h-10 w-10" />;
     iconColors = "bg-blue-100 text-blue-600";
