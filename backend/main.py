@@ -39,7 +39,10 @@ async def lifespan(app: FastAPI):
     await app.state.pg_pool.close()
     await app.state.qdrant.close()
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(docs_url=None,
+              redoc_url=None,
+              openapi_url=None,
+              lifespan=lifespan)
 # Attach the limiter to the app and set up the custom rate limit handler
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
