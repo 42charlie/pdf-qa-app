@@ -13,10 +13,18 @@ function Header() {
 }
 
 function Question( {inputValue, setInputValue, isThinking , onSubmit} ) {
+	const handleInputChange = (e) => {
+		// Limit input to 500 characters
+		if (e.target.value.length > 500) {
+			return;
+		}
+		setInputValue(e.target.value);
+	};
+
 	return (
 		<div className="w-full h-19 bg-white px-5 py-3 border-b border-slate-200">
 			<form className="relative flex items-center gap-3 bg-slate-50 border border-slate-300 rounded-md px-3 py-2 overflow-hidden" onSubmit={onSubmit}>
-					<input type="text" name="question" placeholder="Ask a question about the document..." value={inputValue} onChange={(e) => setInputValue(e.target.value)} className="flex-1 h-8 bg-transparent text-slate-900 rounded-md p-3 pr-10 text-sm focus:outline-none"/>
+					<input type="text" name="question" placeholder="Ask a question about the document..." value={inputValue} onChange={handleInputChange} className="flex-1 h-8 bg-transparent text-slate-900 rounded-md p-3 pr-10 text-sm focus:outline-none"/>
 					<button className={`absolute right-2 p-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors ${isThinking ? 'opacity-50 cursor-not-allowed' : ''}`} type="submit" disabled={isThinking}>
 						<IoSend />
 					</button>
@@ -108,7 +116,7 @@ function Chat( { setRetrievedChunks, setActiveTab, setSubTab, metadata } ) {
 			{isThinking && <SystemMessage isThinking={true} />}
 		<span ref={messagesEndRef}></span>
 		</div>
-		<Question inputValue={inputValue} setInputValue={setInputValue} isThinking={isThinking} onSubmit={onsubmit} />
+		<Question inputValue={inputValue} setInputValue={setInputValue} isThinking={isThinking} onSubmit={onsubmit}/>
 
 	</div>
   );

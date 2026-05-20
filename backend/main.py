@@ -9,7 +9,7 @@ from qdrant_client import AsyncQdrantClient
 from api import chat, documents
 from services.resource_manager import clean_inactive_documents
 from fastapi.middleware.cors import CORSMiddleware
-from services.rate_limiter import limiter, custom_rate_limit_handler
+from services.rate_limiter import get_real_ip, limiter, custom_rate_limit_handler
 from slowapi.errors import RateLimitExceeded
 
 load_dotenv()
@@ -44,7 +44,6 @@ app = FastAPI(docs_url=None,
               openapi_url=None,
               lifespan=lifespan)
 # Attach the limiter to the app and set up the custom rate limit handler
-app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
 
 
